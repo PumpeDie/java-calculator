@@ -65,6 +65,31 @@ public class CalculatorEngine {
     }
 
     /**
+     * Inverse le signe d'un nombre.
+     * @param a Le nombre à inverser.
+     * @return Le nombre avec son signe inversé.
+     */
+    public double negate(double a) {
+        lastResult = -a;
+        return lastResult;
+    }
+
+    /**
+     * Applique l'opération modulo entre deux nombres, ou retourne le pourcentage d'un seul nombre.
+     * @param a Le premier nombre.
+     * @param b Le deuxième nombre (facultatif pour le pourcentage).
+     * @return Le résultat du modulo si b est fourni, sinon le pourcentage de a.
+     */
+    public double percentOrModulo(double a, Double b) {
+        if (b == null) {
+            lastResult = a / 100; // Calcul du pourcentage si aucun deuxième opérande n'est fourni
+        } else {
+            lastResult = a % b; // Modulo si deux opérandes sont fournis
+        }
+        return lastResult;
+    }
+
+    /**
      * Retourne le dernier résultat calculé.
      * @return Dernier résultat
      */

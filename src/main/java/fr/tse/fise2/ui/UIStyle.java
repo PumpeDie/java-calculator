@@ -9,11 +9,11 @@ import java.awt.*;
 public class UIStyle {
 
     /**
-     * 
-     * @param button
-     * @param background
-     * @param foreground
-     * @param font
+     * Couleurs prédéfinies pour les boutons.
+     * @param button JButton
+     * @param background Color
+     * @param foreground Color
+     * @param font Font
      */
     public static void styleButton(JButton button, Color background, Color foreground, Font font) {
         button.setBackground(background);
@@ -25,33 +25,35 @@ public class UIStyle {
     }
 
     /**
-     * 
-     * @param textField
-     * @param background
-     * @param foreground
-     * @param font
+     * Couleurs prédéfinies pour le champ de texte.
+     * @param textField JTextField
+     * @param background Color
+     * @param foreground Color
+     * @param font Font
+     * @param height int
      */
-    public static void styleTextField(JTextField textField, Color background, Color foreground, Font font) {
+    public static void styleTextField(JTextField textField, Color background, Color foreground, Font font, int height) {
         textField.setBackground(background);
         textField.setForeground(foreground);
         textField.setFont(font);
         textField.setEditable(false); // Empêche la modification si nécessaire
         textField.setHorizontalAlignment(JTextField.RIGHT); // Alignement à droite
         textField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Marges internes
+        textField.setPreferredSize(new Dimension(textField.getPreferredSize().width, height)); // Définir la hauteur
     }
 
     /**
-     * 
-     * @return
+     * Police de caractère prédéfinie pour l'interface utilisateur.
+     * @return Font
      */
-    public static Font getUIFont() {
+    static Font getUIFont() {
         return new Font("Arial", Font.BOLD, 20);
     }
 
     /**
-     * 
-     * @param panel
-     * @param background
+     * Couleurs prédéfinies pour le panneau.
+     * @param panel JPanel
+     * @param background Color
      */
     public static void stylePanel(JPanel panel, Color background) {
         panel.setBackground(background);

@@ -49,10 +49,10 @@ public class CalculatorUI {
     public void createAndShowGUI() {
         JFrame frame = new JFrame("Calculatrice");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 400);
+        frame.setSize(400, 600);
 
         // Appliquer le style au champ d'affichage
-        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont());
+        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 200);
 
         // Créer un panel pour les boutons
         panel = new JPanel();

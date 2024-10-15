@@ -1,7 +1,7 @@
 package fr.tse.fise2.calculator;
 
 /**
- * Classe CalculatorEngine qui gère les opérations de base de la calculatrice.
+ * Classe CalculatorEngine qui gère les logiques de base de la calculatrice.
  */
 public class CalculatorEngine {
     /*
@@ -104,6 +104,8 @@ public class CalculatorEngine {
     public String getFormattedLastResult() {
         if (lastResult == (int) lastResult) {
             return String.valueOf((int) lastResult);
+        } else if (lastResult == - (int) lastResult) {
+            return String.valueOf(- (int) lastResult);
         }
         return String.valueOf(lastResult);
     }

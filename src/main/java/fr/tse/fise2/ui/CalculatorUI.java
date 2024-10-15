@@ -39,8 +39,6 @@ public class CalculatorUI {
      */
     public CalculatorUI() {
         display = new JTextField();
-        display.setText("0");
-        display.setEditable(false); // Empêche la modification directe du texte
         currentInput = new StringBuilder(); // Initialise le StringBuilder pour l'entrée utilisateur
     }
 
@@ -52,6 +50,9 @@ public class CalculatorUI {
         JFrame frame = new JFrame("Calculatrice");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 400);
+
+        // Appliquer le style au champ d'affichage
+        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont());
 
         // Créer un panel pour les boutons
         panel = new JPanel();
@@ -69,15 +70,24 @@ public class CalculatorUI {
         // Boucle pour créer et ajouter les boutons au panel
         for (String text : buttons) {
             JButton button = new JButton(text);
-            button.addActionListener(new ButtonClickListener()); // Ajoute un écouteur d'événements
-            panel.add(button); // Ajoute le bouton au panel
+
+            // Définir les styles des boutons en utilisant UIStyle
+            if ("÷".equals(text) || "x".equals(text) || "-".equals(text) || "+".equals(text) || "=".equals(text)) {
+                UIStyle.styleButton(button, Color.ORANGE, Color.WHITE, UIStyle.getUIFont());
+            } else if ("AC".equals(text) || "±".equals(text) || "%".equals(text)) {
+                UIStyle.styleButton(button, Color.LIGHT_GRAY, Color.WHITE, UIStyle.getUIFont());
+            } else if ("Sci".equals(text) || text.matches("[0-9]") || ".".equals(text)) {
+                UIStyle.styleButton(button, Color.DARK_GRAY, Color.WHITE, UIStyle.getUIFont());
+            }
+
+            button.addActionListener(new ButtonClickListener());
+            panel.add(button);
         }
 
-        // Ajoute les composants au JFrame
         frame.add(display, BorderLayout.NORTH); // Affichage des résultats en haut
         frame.add(panel, BorderLayout.CENTER);  // Boutons au centre
 
-        frame.setVisible(true); // Rend la fenêtre visible
+        frame.setVisible(true);
     }
 
     /**

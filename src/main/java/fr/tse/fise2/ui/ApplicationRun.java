@@ -1,7 +1,5 @@
 package fr.tse.fise2.ui;
 
-import fr.tse.fise2.ui.CalculatorUI;
-
 /**
  * Classe ApplicationRun qui sert de point d'entrée pour l'application de calculatrice.
  */

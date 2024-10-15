@@ -96,17 +96,4 @@ public class CalculatorEngine {
     public double getLastResult() {
         return lastResult;
     }
-
-    /**
-     * Vérifie si le dernier résultat est un entier et le retourne sous forme entière si possible.
-     * @return Le dernier résultat en entier si c'est possible, sinon en double.
-     */
-    public String getFormattedLastResult() {
-        if (lastResult == (int) lastResult) {
-            return String.valueOf((int) lastResult);
-        } else if (lastResult == - (int) lastResult) {
-            return String.valueOf(- (int) lastResult);
-        }
-        return String.valueOf(lastResult);
-    }
 }

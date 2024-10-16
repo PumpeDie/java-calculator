@@ -43,6 +43,14 @@ public class CalculatorUI {
     }
 
     /**
+    * Retourne le champ d'affichage de la calculatrice.
+    * @return JTextField utilisé pour afficher les résultats.
+    */
+    public JTextField getDisplay() {
+        return display;
+    }
+
+    /**
      * Crée l'interface graphique (GUI) et l'affiche.
      * Configure le JFrame principal, ajoute les boutons et configure la mise en page.
      */

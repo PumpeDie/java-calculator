@@ -80,12 +80,16 @@ public class CalculatorEngine {
      * @param b Le deuxième nombre (facultatif pour le pourcentage).
      * @return Le résultat du modulo si b est fourni, sinon le pourcentage de a.
      */
-    public double percentOrModulo(double a, Double b) {
-        if (b == null) {
-            lastResult = a / 100; // Calcul du pourcentage si aucun deuxième opérande n'est fourni
-        } else {
-            lastResult = a % b; // Modulo si deux opérandes sont fournis
-        }
+    public double percentOrModulo(double a, double b) {
+        lastResult = a % b; // Modulo si deux opérandes sont fournis
+        return lastResult;
+    }
+    
+    /** 
+     * Surcharge de la méthode percentOrModulo pour calculer le pourcentage d'un nombre.
+     */
+    public double percentOrModulo(double a) {
+        lastResult = a / 100; // Calcul du pourcentage si un seul opérande est fourni
         return lastResult;
     }
 

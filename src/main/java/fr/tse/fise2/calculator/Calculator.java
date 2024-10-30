@@ -18,7 +18,7 @@ public class Calculator {
      * @param expression La chaîne d'expression à évaluer.
      * @return Un objet CalculationResult contenant le résultat et les informations pertinentes.
      */
-    public CalculationResult evaluateExpression(String expression) {
+    public CalculationResult evaluateExpression(String expression) throws CalculatorException {
         String[] tokens = expression.split(" ");
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
@@ -32,7 +32,7 @@ public class Calculator {
                     double value = values.pop();
                     values.push(engine.negate(value)); // Inverse le signe du dernier opérande
                 } else {
-                    throw new IllegalArgumentException("Aucun nombre avant le signe '±'.");
+                    throw new CalculatorException("Aucun nombre avant le signe '±'.");
                 }
             } else {
                 // Traitement des opérateurs
@@ -85,7 +85,7 @@ public class Calculator {
     }
 
     // Méthode pour exécuter les opérations
-    private double performOperation(double a, double b, String operator) {
+    private double performOperation(double a, double b, String operator) throws CalculatorException {
         switch (operator) {
             case "+":
                 return engine.add(a, b);
@@ -94,13 +94,16 @@ public class Calculator {
             case "x":
                 return engine.multiply(a, b);
             case "÷":
+                if (b == 0) {
+                    throw new CalculatorException("Division par zéro non permise.");
+                }
                 return engine.divide(a, b);
             case "±":
                 return engine.negate(a);
             case "%":
                 return engine.percentOrModulo(a, b);
             default:
-                throw new UnsupportedOperationException("Opérateur non pris en charge : " + operator);
+                throw new CalculatorException("Opérateur non pris en charge: " + operator);
         }
     }
 }

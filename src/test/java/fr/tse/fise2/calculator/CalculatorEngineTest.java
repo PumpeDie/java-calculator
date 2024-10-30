@@ -29,7 +29,7 @@ public class CalculatorEngineTest {
     }
 
     @Test
-    void testDivide() {
+    void testDivide() throws CalculatorException {
         assertEquals(3, engine.divide(15, 5));
     }
 

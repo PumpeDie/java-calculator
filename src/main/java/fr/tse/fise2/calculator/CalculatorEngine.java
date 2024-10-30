@@ -55,13 +55,13 @@ public class CalculatorEngine {
      * @param a Premier nombre
      * @param b Deuxième nombre
      * @return Résultat de la division
+     * @throws CalculatorException Si la division par zéro est tentée
      */
-    public double divide(double a, double b) {
+    public double divide(double a, double b) throws CalculatorException {
         if (b == 0) {
-            throw new ArithmeticException("Division par zéro impossible");
+            throw new CalculatorException("Division par zéro non permise.");
         }
-        lastResult = a / b;
-        return lastResult;
+        return a / b;
     }
 
     /**

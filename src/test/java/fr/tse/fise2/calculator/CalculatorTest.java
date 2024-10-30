@@ -14,13 +14,13 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testEvaluateExpression() {
+    public void testEvaluateExpression() throws CalculatorException {
         CalculationResult result = calculator.evaluateExpression("3 + 5 x 2");
         assertEquals(13, result.getResult());
     }
 
     @Test
-    public void testMultiplyNegative() {
+    public void testMultiplyNegative() throws CalculatorException {
         CalculationResult result = calculator.evaluateExpression("3 x 5 ±");
         assertEquals(-15, result.getResult());
     }

@@ -4,8 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import fr.tse.fise2.calculator.CalculationResult;
 import fr.tse.fise2.calculator.Calculator;
+import fr.tse.fise2.calculator.CalculationResult;
+import fr.tse.fise2.calculator.CalculatorException;
 
 /**
  * Classe CalculatorUI qui gère l'interface utilisateur graphique (GUI) pour la calculatrice.
@@ -234,11 +235,15 @@ public class CalculatorUI {
                 case "=":
                     // Ici, on fait appel à engine pour calculer le résultat
                     if (currentInput.length() > 0) {
-                        // Extraire et évaluer l'expression de currentInput
-                        String result = evaluateExpression(currentInput.toString());
-                        currentInput.setLength(0); // Réinitialiser l'entrée après le calcul
-                        currentInput.append(result); // Conserver le résultat pour affichage futur
-                        display.setText(currentInput.toString());
+                        try {
+                            // Extraire et évaluer l'expression de currentInput
+                            String result = evaluateExpression(currentInput.toString());
+                            currentInput.setLength(0); // Réinitialiser l'entrée après le calcul
+                            currentInput.append(result); // Conserver le résultat pour affichage futur
+                            display.setText(currentInput.toString());
+                        } catch (CalculatorException ex) {
+                            display.setText("Erreur: " + ex.getMessage());
+                        }
                     }
                     break;
     
@@ -266,7 +271,7 @@ public class CalculatorUI {
          * @param expression La chaîne d'expression à évaluer.
          * @return Le résultat du calcul.
          */
-        private String evaluateExpression(String expression) {
+        private String evaluateExpression(String expression) throws CalculatorException {
             Calculator calculator = new Calculator();
             CalculationResult result = calculator.evaluateExpression(expression);
             return result.getFormattedResult();

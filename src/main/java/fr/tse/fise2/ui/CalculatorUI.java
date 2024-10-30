@@ -2,21 +2,16 @@ package fr.tse.fise2.ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
-import fr.tse.fise2.calculator.CalculatorEngine;
+import fr.tse.fise2.calculator.CalculationResult;
+import fr.tse.fise2.calculator.Calculator;
 
 /**
  * Classe CalculatorUI qui gère l'interface utilisateur graphique (GUI) pour la calculatrice.
  * Utilise Swing pour afficher les boutons et le champ de texte.
  */
 public class CalculatorUI {
-
-    /** 
-     * Moteur de la calculatrice pour effectuer les opérations de base.
-     */
-    private CalculatorEngine engine = new CalculatorEngine(); // Initialise le moteur de calcul
 
     /** 
      * Champ de texte utilisé pour afficher les résultats de la calculatrice. 
@@ -39,7 +34,9 @@ public class CalculatorUI {
      */
     public CalculatorUI() {
         display = new JTextField();
-        currentInput = new StringBuilder(); // Initialise le StringBuilder pour l'entrée utilisateur
+        display.setName("display");      // Définir un nom pour le champ JTextField
+        display.setText("0");               // Afficher 0 par défaut
+        currentInput = new StringBuilder();   // Initialise le StringBuilder pour l'entrée utilisateur
     }
 
     /**
@@ -62,6 +59,65 @@ public class CalculatorUI {
         // Appliquer le style au champ d'affichage
         UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 200);
 
+        // Gérer les événements clavier pour les touches numériques et les opérateurs
+        display.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                char keyChar = e.getKeyChar();
+                String command = String.valueOf(keyChar);
+        
+                // Vérifier si la touche est un chiffre ou un opérateur
+                if (Character.isDigit(keyChar) || "+-*/.%".indexOf(keyChar) != -1 || e.getKeyCode() == KeyEvent.VK_DIVIDE || e.getKeyCode() == KeyEvent.VK_MULTIPLY) {
+                    // Simuler un clic sur le bouton correspondant
+                    for (Component comp : panel.getComponents()) {
+                        if (comp instanceof JButton) {
+                            JButton button = (JButton) comp;
+                            // Gestion spéciale pour '*' et '/'
+                            if (e.getKeyCode() == KeyEvent.VK_DIVIDE && button.getText().equals("÷")) {
+                                button.doClick();
+                                System.out.println("Key pressed: " + keyChar);
+                                break;
+                            } else if (e.getKeyCode() == KeyEvent.VK_MULTIPLY && button.getText().equals("x")) {
+                                button.doClick();
+                                System.out.println("Key pressed: " + keyChar);
+                                break;
+                            } else if (button.getText().equals(command)) {
+                                button.doClick();
+                                System.out.println("Key pressed: " + keyChar);
+                                break;
+                            }
+                        }
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    // Simuler un clic sur le bouton "="
+                    for (Component comp : panel.getComponents()) {
+                        if (comp instanceof JButton) {
+                            JButton button = (JButton) comp;
+                            if (button.getText().equals("=")) {
+                                button.doClick();
+                                break;
+                            }
+                        }
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    // Simuler un clic sur le bouton "AC" pour effacer
+                    for (Component comp : panel.getComponents()) {
+                        if (comp instanceof JButton) {
+                            JButton button = (JButton) comp;
+                            if (button.getText().equals("AC")) {
+                                button.doClick();
+                                break;
+                            }
+                        }
+                    }
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    // Fermer l'application avec la touche ÉCHAP
+                    System.out.println("Fermeture de l'application");
+                    System.exit(0);
+                }
+            }
+        });
+         
         // Créer un panel pour les boutons
         panel = new JPanel();
         panel.setLayout(new GridLayout(5, 4, 5, 5)); // Grille 5x4 pour les boutons avec un espacement de 5px
@@ -179,7 +235,7 @@ public class CalculatorUI {
                     // Ici, on fait appel à engine pour calculer le résultat
                     if (currentInput.length() > 0) {
                         // Extraire et évaluer l'expression de currentInput
-                        double result = evaluateExpression(currentInput.toString());
+                        String result = evaluateExpression(currentInput.toString());
                         currentInput.setLength(0); // Réinitialiser l'entrée après le calcul
                         currentInput.append(result); // Conserver le résultat pour affichage futur
                         display.setText(currentInput.toString());
@@ -210,12 +266,10 @@ public class CalculatorUI {
          * @param expression La chaîne d'expression à évaluer.
          * @return Le résultat du calcul.
          */
-        private double evaluateExpression(String expression) {
-            // Cette méthode doit utiliser CalculatorEngine pour effectuer le calcul
-            // Par exemple, tu pourrais utiliser une méthode dans CalculatorEngine pour évaluer l'expression
-            // Pour l'instant, on va juste simuler le résultat
-            // À remplacer par la logique d'évaluation réelle
-            return 0; // Remplace par le résultat réel
+        private String evaluateExpression(String expression) {
+            Calculator calculator = new Calculator();
+            CalculationResult result = calculator.evaluateExpression(expression);
+            return result.getFormattedResult();
         }
     }
 }

@@ -26,14 +26,6 @@ public class Calculator {
         for (String token : tokens) {
             if (isNumeric(token)) {
                 values.push(Double.parseDouble(token));
-            } else if ("±".equals(token)) {
-                // Gérer l'opérateur "±"
-                if (!values.isEmpty()) {
-                    double value = values.pop();
-                    values.push(engine.negate(value)); // Inverse le signe du dernier opérande
-                } else {
-                    throw new CalculatorException("Aucun nombre avant le signe '±'.");
-                }
             } else {
                 // Traitement des opérateurs
                 while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(token)) {
@@ -79,6 +71,8 @@ public class Calculator {
             case "÷":
             case "%":
                 return 2;
+            case "±":
+                return 3;
             default:
                 return 0;
         }
@@ -98,8 +92,6 @@ public class Calculator {
                     throw new CalculatorException("Division par zéro non permise.");
                 }
                 return engine.divide(a, b);
-            case "±":
-                return engine.negate(a);
             case "%":
                 return engine.percentOrModulo(a, b);
             default:

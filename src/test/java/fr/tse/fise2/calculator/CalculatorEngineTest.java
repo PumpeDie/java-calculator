@@ -41,11 +41,6 @@ public class CalculatorEngineTest {
     }
 
     @Test
-    void testNegate() {
-        assertEquals(-5, engine.negate(5));
-    }
-
-    @Test
     void testPercentOrModulo() {
         assertEquals(0.02, engine.percentOrModulo(2));
         assertEquals(1, engine.percentOrModulo(5, 2));

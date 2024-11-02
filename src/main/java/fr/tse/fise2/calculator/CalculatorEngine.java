@@ -4,15 +4,11 @@ package fr.tse.fise2.calculator;
  * Classe CalculatorEngine qui gère les logiques de base de la calculatrice.
  */
 public class CalculatorEngine {
-    /*
-     * Dernier résultat calculé.
-     */
+    
+    // Dernier résultat calculé.
     private double lastResult;
 
-    /**
-     * Constructeur de la classe CalculatorEngine.
-     * Initialise le dernier résultat à 0.
-     */
+    // Constructeur de la classe CalculatorEngine.
     public CalculatorEngine() {
         lastResult = 0;
     }
@@ -62,16 +58,6 @@ public class CalculatorEngine {
             throw new CalculatorException("Division par zéro non permise.");
         }
         return a / b;
-    }
-
-    /**
-     * Inverse le signe d'un nombre.
-     * @param a Le nombre à inverser.
-     * @return Le nombre avec son signe inversé.
-     */
-    public double negate(double a) {
-        lastResult = -a;
-        return lastResult;
     }
 
     /**

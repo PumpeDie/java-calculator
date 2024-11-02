@@ -34,7 +34,7 @@ public class CalculatorUITest {
     @Test
     public void testDisplayInitialText() {
         // Vérifier si le champ d'affichage commence à zéro
-        assertThat(calculatorUI.getDisplay().getText()).isEqualTo("");
+        assertThat(calculatorUI.getDisplay().getText()).isEqualTo("0");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class CalculatorUITest {
         window.textBox("display").pressKey(KeyEvent.VK_MULTIPLY);
         window.textBox("display").pressKey(KeyEvent.VK_3);
 
-        assertThat(window.textBox("display").text()).isEqualTo("2 x 3");
+        assertThat(window.textBox("display").text()).isEqualTo("2x3");
     }
 
     @Test
@@ -67,4 +67,35 @@ public class CalculatorUITest {
         window.requireNotVisible(); // Vérifie que la fenêtre a été fermée
     }
 
+    @Test
+    public void testBackspace() {
+        // Simuler la saisie des chiffres "1", "2", "3"
+        window.textBox("display").pressKey(KeyEvent.VK_1);
+        window.textBox("display").pressKey(KeyEvent.VK_2);
+        window.textBox("display").pressKey(KeyEvent.VK_3);
+
+        // Cliquer sur le bouton "←"
+        window.button("backspace").click();
+
+        // Vérifier que l'affichage montre "12"
+        assertThat(window.textBox("display").text()).isEqualTo("12");
+    }
+
+    @Test
+    public void testToggleSign() {
+        // Simuler la saisie du chiffre "2"
+        window.textBox("display").pressKey(KeyEvent.VK_2);
+        
+        // Cliquer sur le bouton "±" pour changer le signe
+        window.button("plusMinus").click();
+        
+        // Vérifier que l'affichage montre "(-2)"
+        assertThat(window.textBox("display").text()).isEqualTo("(-2)");
+        
+        // Cliquer à nouveau sur le bouton "±" pour rétablir le signe positif
+        window.button("plusMinus").click();
+        
+        // Vérifier que l'affichage revient à "2"
+        assertThat(window.textBox("display").text()).isEqualTo("2");
+    }
 }

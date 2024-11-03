@@ -4,7 +4,7 @@ package fr.tse.fise2.calculator;
  * Classe CalculatorEngine qui gère les logiques de base de la calculatrice.
  */
 public class CalculatorEngine {
-    
+
     // Dernier résultat calculé.
     private double lastResult;
 
@@ -57,7 +57,8 @@ public class CalculatorEngine {
         if (b == 0) {
             throw new CalculatorException("Division par zéro non permise.");
         }
-        return a / b;
+        lastResult = a / b; // Division si le dénominateur n'est pas zéro
+        return lastResult;
     }
 
     /**
@@ -66,7 +67,10 @@ public class CalculatorEngine {
      * @param b Le deuxième nombre (facultatif pour le pourcentage).
      * @return Le résultat du modulo si b est fourni, sinon le pourcentage de a.
      */
-    public double percentOrModulo(double a, double b) {
+    public double percentOrModulo(double a, double b) throws CalculatorException {
+        if (b == 0) {
+            throw new CalculatorException("Modulo par zéro non permis.");
+        }
         lastResult = a % b; // Modulo si deux opérandes sont fournis
         return lastResult;
     }

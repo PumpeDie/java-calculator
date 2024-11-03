@@ -1,6 +1,10 @@
 package fr.tse.fise2.calculator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Classe Calculator qui gère les opérations de la calculatrice.
@@ -19,7 +23,7 @@ public class Calculator {
      * @return Un objet CalculationResult contenant le résultat et les informations pertinentes.
      */
     public CalculationResult evaluateExpression(String expression) throws CalculatorException {
-        String[] tokens = expression.split(" ");
+        List<String> tokens = tokenize(expression);
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
 
@@ -51,7 +55,25 @@ public class Calculator {
         return new CalculationResult(finalResult, expression); // Crée un résultat avec l'expression
     }
 
-    // Méthode pour déterminer si une chaîne est un nombre
+    /**
+     * Méthode pour convertir une expression mathématique en notation postfixée.
+     * @param expression L'expression mathématique à convertir.
+     * @return Une chaîne de caractères représentant l'expression en notation postfixée.
+     */
+    private List<String> tokenize(String expression) {
+        List<String> tokens = new ArrayList<>();
+        Matcher matcher = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-x÷%()]").matcher(expression);
+        while (matcher.find()) {
+            tokens.add(matcher.group());
+        }
+        return tokens;
+    }
+
+    /** 
+     * Méthode pour déterminer si une chaîne est un nombre
+     * @param str La chaîne à vérifier
+     * @return true si la chaîne est un nombre, false sinon
+     */
     private boolean isNumeric(String str) {
         try {
             Double.parseDouble(str);
@@ -88,9 +110,6 @@ public class Calculator {
             case "x":
                 return engine.multiply(a, b);
             case "÷":
-                if (b == 0) {
-                    throw new CalculatorException("Division par zéro non permise.");
-                }
                 return engine.divide(a, b);
             case "%":
                 return engine.percentOrModulo(a, b);

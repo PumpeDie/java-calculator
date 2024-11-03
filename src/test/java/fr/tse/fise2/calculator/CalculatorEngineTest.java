@@ -34,16 +34,15 @@ public class CalculatorEngineTest {
     }
 
     @Test
-    public void testDivisionByZero() {
-        assertThrows(ArithmeticException.class, () -> {
-            engine.divide(10, 0);
-        });
+    public void testDivisionByZero() throws CalculatorException {
+        assertThrows(CalculatorException.class, () -> engine.divide(5, 0));
     }
 
     @Test
-    void testPercentOrModulo() {
+    void testPercentOrModulo() throws CalculatorException {
         assertEquals(0.02, engine.percentOrModulo(2));
         assertEquals(1, engine.percentOrModulo(5, 2));
+        assertThrows(CalculatorException.class, () -> engine.percentOrModulo(5, 0));
     }
 
     @Test

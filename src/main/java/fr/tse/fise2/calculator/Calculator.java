@@ -30,6 +30,19 @@ public class Calculator {
         for (String token : tokens) {
             if (isNumeric(token)) {
                 values.push(Double.parseDouble(token));
+            } else if (token.equals("(")) {
+                operators.push(token);
+            } else if (token.equals(")")) {
+                while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                    double b = values.pop();
+                    double a = values.pop();
+                    String operator = operators.pop();
+                    double result = performOperation(a, b, operator);
+                    values.push(result);
+                }
+                if (!operators.isEmpty()) {
+                    operators.pop(); // Enlève la parenthèse ouvrante
+                }
             } else {
                 // Traitement des opérateurs
                 while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(token)) {
@@ -51,10 +64,17 @@ public class Calculator {
             values.push(result);
         }
 
+        if (!operators.isEmpty()) {
+            throw new CalculatorException("Erreur de syntaxe: Expression invalide.");
+        }
+
         double finalResult = values.pop();
         return new CalculationResult(finalResult, expression); // Crée un résultat avec l'expression
     }
 
+    // Pattern précompilé comme constante de classe
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("\\(-\\d+\\.?\\d*\\)|\\d+\\.?\\d*|[+\\-x÷%()]");
+    
     /**
      * Méthode pour convertir une expression mathématique en notation postfixée.
      * @param expression L'expression mathématique à convertir.
@@ -62,9 +82,29 @@ public class Calculator {
      */
     private List<String> tokenize(String expression) {
         List<String> tokens = new ArrayList<>();
-        Matcher matcher = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-x÷%()]").matcher(expression);
+        // Utiliser le Pattern précompilé
+        Matcher matcher = TOKEN_PATTERN.matcher(expression);
+        
+        String previousToken = null;
         while (matcher.find()) {
-            tokens.add(matcher.group());
+            String token = matcher.group();
+            
+            // Multiplication implicite après une parenthèse fermante
+            if (previousToken != null && previousToken.equals(")") && 
+                token.matches("\\d+\\.?\\d*")) {
+                tokens.add("x");
+            }
+            
+            // Gestion des nombres négatifs entre parenthèses
+            if (token.startsWith("(-") && token.endsWith(")")) {
+                tokens.add("(");
+                tokens.add(token.substring(1, token.length() - 1));
+                tokens.add(")");
+                previousToken = ")";
+            } else {
+                tokens.add(token);
+                previousToken = token;
+            }
         }
         return tokens;
     }
@@ -86,15 +126,18 @@ public class Calculator {
     // Méthode pour gérer la priorité des opérateurs
     private int precedence(String operator) {
         switch (operator) {
-            case "+":
-            case "-":
-                return 1;
+            case "(":
+            case ")":
+                return 4;
+            case "±":
+                return 3;
             case "x":
             case "÷":
             case "%":
                 return 2;
-            case "±":
-                return 3;
+            case "+":
+            case "-":
+                return 1;
             default:
                 return 0;
         }

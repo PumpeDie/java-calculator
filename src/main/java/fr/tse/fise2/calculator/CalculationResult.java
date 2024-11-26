@@ -25,10 +25,10 @@ public class CalculationResult {
      * @return Le résultat formaté.
      */
     public String getFormattedResult() {
-        if (result == (int) result) {
-            return String.valueOf((int) result);
-        } else if (result == - ((int) result)) {
-            return String.valueOf(- ((int) result));
+        if (result == (long) result) {
+            return String.valueOf((long) result);
+        } else if (result == - ((long) result)) {
+            return String.valueOf(- ((long) result));
         }
         return String.valueOf(result);
     }

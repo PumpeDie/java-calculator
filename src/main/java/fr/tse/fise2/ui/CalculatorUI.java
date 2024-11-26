@@ -206,37 +206,46 @@ public class CalculatorUI {
                     // Change le signe du nombre actuel
                     if (currentInput.length() > 0) {
                         String expression = currentInput.toString();
-                        // Capture l'opérateur précédent s'il existe
-                        Matcher matcher = Pattern.compile("([+-])?\\(?-?\\d+\\.?\\d*\\)?$").matcher(expression);
-                
-                        if (matcher.find()) {
-                            int start = matcher.start();
-                            String operator = matcher.group(1); // "+" ou "-" ou null
-                            String matchedGroup = matcher.group().replace(operator != null ? operator : "", "");
-                            String newExpression;
-                
-                            if (operator != null) {
-                                // Cas: X+Y → X-Y ou X-Y → X+Y
-                                String newOperator = operator.equals("-") ? "+" : "-";
-                                newExpression = expression.substring(0, matcher.start(1)) + newOperator + matchedGroup;
-                            } else {
-                                // Cas: X → -X ou -X → X
-                                if (matchedGroup.startsWith("(") && matchedGroup.endsWith(")")) {
-                                    // (-X) → X
-                                    String number = matchedGroup.substring(2, matchedGroup.length() - 1);
-                                    newExpression = expression.substring(0, start) + number;
-                                } else if (matchedGroup.startsWith("-")) {
-                                    // -X → X
-                                    String number = matchedGroup.substring(1);
-                                    newExpression = expression.substring(0, start) + number;
-                                } else {
-                                    // X → (-X)
-                                    newExpression = expression.substring(0, start) + "(-" + matchedGroup + ")";
-                                }
-                            }
-                
+                        
+                        // Cas 1: Simple nombre (y compris résultat d'opération)
+                        if (expression.matches("-?\\d+\\.?\\d*")) {
+                            double value = Double.parseDouble(expression);
                             currentInput.setLength(0);
-                            currentInput.append(newExpression);
+                            // Créer un CalculationResult temporaire pour le formatage
+                            CalculationResult temp = new CalculationResult(value < 0 ? -value : value, expression);
+                            String formattedValue = temp.getFormattedResult();
+                            currentInput.append(value < 0 ? formattedValue : "(-" + formattedValue + ")");
+                            display.setText(currentInput.toString());
+                            return;
+                        }
+                        
+                        // Cas 2: Expression avec opérateur à la fin
+                        Pattern opPattern = Pattern.compile("(.*[+\\-x÷])-?\\d+\\.?\\d*$");
+                        Matcher opMatcher = opPattern.matcher(expression);
+                        if (opMatcher.matches()) {
+                            String prefix = opMatcher.group(1);
+                            String number = expression.substring(prefix.length());
+                            currentInput.setLength(0);
+                            if (number.startsWith("-")) {
+                                currentInput.append(prefix).append(number.substring(1));
+                            } else {
+                                currentInput.append(prefix).append("(-").append(number).append(")");
+                            }
+                            display.setText(currentInput.toString());
+                            return;
+                        }
+                        
+                        // Cas 3: Expression avec parenthèses
+                        if (expression.contains("(")) {
+                            if (expression.startsWith("(-")) {
+                                // Enlever les parenthèses
+                                currentInput.setLength(0);
+                                currentInput.append(expression.substring(2, expression.length() - 1));
+                            } else {
+                                // Ajouter les parenthèses
+                                currentInput.setLength(0);
+                                currentInput.append("(-").append(expression).append(")");
+                            }
                             display.setText(currentInput.toString());
                         }
                     }
@@ -245,7 +254,7 @@ public class CalculatorUI {
                 case "%":
                     // Ajoute le pourcentage à l'entrée utilisateur
                     if (currentInput.length() > 0) {
-                        currentInput.append(" %");
+                        currentInput.append("%");
                         display.setText(currentInput.toString());
                     }
                     break;
@@ -302,21 +311,21 @@ public class CalculatorUI {
                     break;
     
                 default:
-                    // Ajoute le texte du bouton à l'entrée utilisateur
-                if (Character.isDigit(command.charAt(0)) || command.equals(".")) {
-                    // Vérifie si le point décimal n'est pas déjà présent
-                    if (command.equals(".")) {
-                        if (currentInput.length() == 0 || currentInput.toString().contains(" ")) {
-                            currentInput.append("0."); // Ajoute 0. si c'est le premier point décimal
-                        } else if (!currentInput.toString().contains(".")) {
-                            currentInput.append(command); // Ajoute le point décimal
+                    // Ajoute le chiffre ou le point décimal à l'entrée utilisateur
+                    if (Character.isDigit(command.charAt(0)) || command.equals(".")) {
+                        // Vérifie si le point décimal n'est pas déjà présent
+                        if (command.equals(".")) {
+                            if (currentInput.length() == 0 || currentInput.toString().contains(" ")) {
+                                currentInput.append("0."); // Ajoute 0. si c'est le premier point décimal
+                            } else if (!currentInput.toString().contains(".")) {
+                                currentInput.append(command); // Ajoute le point décimal
+                            }
+                        } else {
+                            currentInput.append(command); // Ajoute le chiffre
                         }
-                    } else {
-                        currentInput.append(command); // Ajoute le chiffre
+                        display.setText(currentInput.toString());
+                        acButton.setText("←"); // Changer le texte du bouton "AC" en "←"
                     }
-                    display.setText(currentInput.toString());
-                    acButton.setText("←"); // Changer le texte du bouton "AC" en "←"
-                }
                 break;
             }
         }

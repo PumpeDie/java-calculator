@@ -1,5 +1,8 @@
 package fr.tse.fise2.calculator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * Classe CalculationResult qui représente le résultat d'une opération de calcul.
  */
@@ -30,6 +33,11 @@ public class CalculationResult {
         } else if (result == - ((long) result)) {
             return String.valueOf(- ((long) result));
         }
-        return String.valueOf(result);
+
+        // Pour éviter les problèmes de précision des doubles
+        BigDecimal bd = new BigDecimal(result).setScale(10, RoundingMode.HALF_UP);
+        String formated = bd.stripTrailingZeros().toPlainString();
+
+        return formated;
     }
 }

@@ -18,6 +18,9 @@ public class CalculatorUI {
     // Champ de texte utilisé pour afficher les résultats de la calculatrice.
     private JTextField display;
 
+    // Champ de texte pour afficher l'expression validé de l'utilisateur.
+    private JTextField expressionDisplay;
+
     // Panel contenant les boutons de la calculatrice.
     private JPanel panel;
 
@@ -29,10 +32,13 @@ public class CalculatorUI {
 
     // Constructeur de la classe CalculatorUI.
     public CalculatorUI() {
-        display = new JTextField();           // Créer un champ JTextField pour afficher les résultats
-        display.setName("display");      // Définir un nom pour le champ JTextField
-        display.setText("0");               // Afficher 0 par défaut
-        currentInput = new StringBuilder();   // Initialise le StringBuilder pour l'entrée utilisateur
+        display = new JTextField();                          // Créer un champ JTextField pour afficher les résultats
+        display.setName("display");                     // Définir un nom pour le champ JTextField
+        display.setText("0");                              // Afficher 0 par défaut
+        expressionDisplay = new JTextField();                // Créer un champ JTextField pour afficher l'expression
+        expressionDisplay.setName("expressionDisplay"); // Définir un nom pour le champ JTextField
+        expressionDisplay.setEditable(false);              // Empêcher l'édition de l'expression
+        currentInput = new StringBuilder();                  // Initialise le StringBuilder pour l'entrée utilisateur
 
         // Initialiser le panneau de boutons
         panel = new JPanel();
@@ -75,18 +81,11 @@ public class CalculatorUI {
         }
     }
 
-    /**
-    * Retourne le champ d'affichage de la calculatrice.
-    * @return JTextField utilisé pour afficher les résultats.
-    */
+    // Getters pour les champs de texte et le panneau de boutons
     public JTextField getDisplay() {
         return display;
     }
 
-    /**
-    * Retourne le panneau contenant les boutons de la calculatrice.
-    * @return JPanel contenant les boutons.
-    */
     public JPanel getPanel() {
         return panel;
     }
@@ -100,8 +99,9 @@ public class CalculatorUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
 
-        // Appliquer le style au champ d'affichage
-        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 200);
+        // Appliquer le style au champ d'affichage et au champ d'expression
+        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 50);
+        UIStyle.styleTextField(expressionDisplay, Color.BLACK, Color.LIGHT_GRAY, new Font(UIStyle.getUIFont().getName(), Font.BOLD, 14), 50);
 
         // Gérer les événements clavier pour les touches numériques et les opérateurs
         display.addKeyListener(new KeyAdapter() {
@@ -162,7 +162,14 @@ public class CalculatorUI {
             }
         });
 
-        frame.add(display, BorderLayout.NORTH); // Affichage des résultats en haut
+        JPanel displayPanel = new JPanel();
+        displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
+        UIStyle.stylePanel(displayPanel, Color.BLACK);
+
+        displayPanel.add(expressionDisplay);
+        displayPanel.add(display);
+
+        frame.add(displayPanel, BorderLayout.NORTH); // Affichage des résultats en haut
         frame.add(panel, BorderLayout.CENTER);  // Boutons au centre
 
         frame.setVisible(true);
@@ -187,14 +194,15 @@ public class CalculatorUI {
                     // Réinitialise l'entrée utilisateur
                     currentInput.setLength(0);
                     display.setText("0");
+                    expressionDisplay.setText("");
                     acButton.setText("AC");
                     break;
     
                 case "←":
-                    // Supprime le dernier élément (opérande ou opérateur) de currentInput
+                    // Supprime le dernier élément de currentInput
                     if (currentInput.length() > 0) {
                         currentInput.deleteCharAt(currentInput.length() - 1);
-                        display.setText(currentInput.toString());
+                        display.setText(currentInput.length() > 0 ? currentInput.toString() : "0");
                         // Si currentInput est vide, changer le bouton à "AC"
                         if (currentInput.length() == 0) {
                             acButton.setText("AC");
@@ -299,11 +307,15 @@ public class CalculatorUI {
                 case "=":
                     if (currentInput.length() > 0) {
                         try {
-                            // Extraire et évaluer l'expression de currentInput
-                            String result = evaluateExpression(currentInput.toString());
-                            currentInput.setLength(0); // Réinitialiser l'entrée après le calcul
-                            currentInput.append(result); // Conserver le résultat pour affichage futur
-                            display.setText(currentInput.toString());
+                            String expression = currentInput.toString();
+                            String result = evaluateExpression(expression);
+                            // Mettre à jour l'affichage de l'expression
+                            expressionDisplay.setText(expression);
+                            display.setText(result);
+                            currentInput.setLength(0);
+                            currentInput.append(result);
+                            // Changer le bouton en AC après le calcul
+                            acButton.setText("AC");
                         } catch (CalculatorException ex) {
                             display.setText("Erreur: " + ex.getMessage());
                         }

@@ -30,8 +30,6 @@ public class CalculationResult {
     public String getFormattedResult() {
         if (result == (long) result) {
             return String.valueOf((long) result);
-        } else if (result == - ((long) result)) {
-            return String.valueOf(- ((long) result));
         }
 
         // Pour éviter les problèmes de précision des doubles

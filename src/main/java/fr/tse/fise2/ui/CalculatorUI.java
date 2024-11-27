@@ -313,12 +313,24 @@ public class CalculatorUI {
                 default:
                     // Ajoute le chiffre ou le point décimal à l'entrée utilisateur
                     if (Character.isDigit(command.charAt(0)) || command.equals(".")) {
-                        // Vérifie si le point décimal n'est pas déjà présent
                         if (command.equals(".")) {
-                            if (currentInput.length() == 0 || currentInput.toString().contains(" ")) {
-                                currentInput.append("0."); // Ajoute 0. si c'est le premier point décimal
-                            } else if (!currentInput.toString().contains(".")) {
-                                currentInput.append(command); // Ajoute le point décimal
+                            String currentExp = currentInput.toString();
+                            // Extraire la dernière opérande (nombre après le dernier opérateur)
+                            Pattern pattern = Pattern.compile("[+\\-x÷]?([^+\\-x÷]*)$");
+                            Matcher matcher = pattern.matcher(currentExp);
+                            
+                            if (matcher.find()) {
+                                String lastOperand = matcher.group(1);
+                                // Vérifier si la dernière opérande contient déjà un point
+                                if (!lastOperand.contains(".")) {
+                                    if (lastOperand.isEmpty() || currentInput.length() == 0) {
+                                        currentInput.append("0.");
+                                    } else {
+                                        currentInput.append(".");
+                                    }
+                                }
+                            } else if (currentInput.length() == 0) {
+                                currentInput.append("0.");
                             }
                         } else {
                             currentInput.append(command); // Ajoute le chiffre
@@ -326,7 +338,7 @@ public class CalculatorUI {
                         display.setText(currentInput.toString());
                         acButton.setText("←"); // Changer le texte du bouton "AC" en "←"
                     }
-                break;
+                    break;
             }
         }
 

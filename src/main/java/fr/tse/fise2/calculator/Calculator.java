@@ -33,30 +33,42 @@ public class Calculator {
             } else if (token.equals("(")) {
                 operators.push(token);
             } else if (token.equals(")")) {
+                // Calculer tout ce qui est dans les parenthèses
                 while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                    if (values.size() < 2) {
+                        throw new CalculatorException("Expression invalide");
+                    }
                     double b = values.pop();
                     double a = values.pop();
-                    String operator = operators.pop();
-                    double result = performOperation(a, b, operator);
-                    values.push(result);
+                    values.push(performOperation(a, b, operators.pop()));
                 }
                 if (!operators.isEmpty()) {
-                    operators.pop(); // Enlève la parenthèse ouvrante
+                    operators.pop(); // Retirer la parenthèse ouvrante
+                } else {
+                    throw new CalculatorException("Parenthèses mal équilibrées");
                 }
             } else {
-                // Traitement des opérateurs
-                while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(token)) {
+                // Opérateurs standards
+                while (!operators.isEmpty() && !operators.peek().equals("(") && 
+                       precedence(operators.peek()) >= precedence(token)) {
+                    if (values.size() < 2) {
+                        throw new CalculatorException("Expression invalide");
+                    }
                     double b = values.pop();
                     double a = values.pop();
-                    String operator = operators.pop();
-                    double result = performOperation(a, b, operator);
-                    values.push(result);
+                    values.push(performOperation(a, b, operators.pop()));
                 }
                 operators.push(token);
             }
         }
 
+        // Calculer les opérations restantes
         while (!operators.isEmpty()) {
+            if (operators.peek().equals("(") || operators.peek().equals(")")) {
+                throw new CalculatorException("Parenthèses mal équilibrées");
+            }
+            if (values.size() < 2) throw new CalculatorException("Expression invalide");
+
             double b = values.pop();
             double a = values.pop();
             String operator = operators.pop();
@@ -64,9 +76,8 @@ public class Calculator {
             values.push(result);
         }
 
-        if (!operators.isEmpty()) {
-            throw new CalculatorException("Erreur de syntaxe: Expression invalide.");
-        }
+        if (values.isEmpty()) throw new CalculatorException("Expression vide");
+        if (values.size() > 1) throw new CalculatorException("Expression invalide");
 
         double finalResult = values.pop();
         return new CalculationResult(finalResult, expression); // Crée un résultat avec l'expression
@@ -155,6 +166,9 @@ public class Calculator {
             case "÷":
                 return engine.divide(a, b);
             case "%":
+                if (b == Double.NEGATIVE_INFINITY) { // Valeur spéciale pour indiquer un opérateur unaire
+                    return engine.percentOrModulo(a);
+                }
                 return engine.percentOrModulo(a, b);
             default:
                 throw new CalculatorException("Opérateur non pris en charge: " + operator);

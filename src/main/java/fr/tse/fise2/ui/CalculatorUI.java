@@ -180,10 +180,28 @@ public class CalculatorUI {
      * Implémente l'interface ActionListener pour écouter et traiter les clics sur les boutons.
      */
     private class ButtonClickListener implements ActionListener {
-        /**
-         * Méthode appelée lorsque l'utilisateur clique sur un bouton.
-         * @param e L'événement de clic sur un bouton.
-         */
+
+        // Méthode pour évaluer l'expression donnée et renvoyer le résultat formaté.
+        private String evaluateExpression(String expression) throws CalculatorException {
+            Calculator calculator = new Calculator();
+            CalculationResult result = calculator.evaluateExpression(expression);
+            return result.getFormattedResult();
+        }
+
+        // Méthode utilitaire pour vérifier si c'est un opérateur
+        private boolean isOperator(String token) {
+            return "+-x÷".contains(token);
+        }
+
+        // Méthode pour obtenir le dernier token de l'expression
+        private String getLastToken() {
+            if (currentInput.length() == 0) {
+                return "";
+            }
+            return String.valueOf(currentInput.charAt(currentInput.length() - 1));
+        }
+        
+        // Méthode pour gérer les actions des boutons
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
@@ -267,34 +285,19 @@ public class CalculatorUI {
                     }
                     break;
     
-                case "÷":
-                    // Ajoute l'opérateur à l'entrée utilisateur
+                case "+": case "-": case "x": case "÷":
                     if (currentInput.length() > 0) {
-                        currentInput.append(command); // Ajoute l'opérateur
-                        display.setText(currentInput.toString());
-                    }
-                    break;
-
-                case "x":
-                    // Ajoute l'opérateur à l'entrée utilisateur
-                    if (currentInput.length() > 0) {
-                        currentInput.append(command); // Ajoute l'opérateur
-                        display.setText(currentInput.toString());
-                    }
-                    break;
-
-                case "-":
-                    // Ajoute l'opérateur à l'entrée utilisateur
-                    if (currentInput.length() > 0) {
-                        currentInput.append(command); // Ajoute l'opérateur
-                        display.setText(currentInput.toString());
-                    }
-                    break;
-
-                case "+":
-                    // Ajoute l'opérateur à l'entrée utilisateur
-                    if (currentInput.length() > 0) {
-                        currentInput.append(command); // Ajoute l'opérateur
+                        String lastToken = getLastToken();
+                        
+                        // Si le dernier token est un opérateur, le remplacer
+                        if (isOperator(lastToken)) {
+                            currentInput.setLength(currentInput.length() - 1);
+                            currentInput.append(command);
+                        } 
+                        // Sinon, ajouter le nouvel opérateur si ce n'est pas une parenthèse fermante
+                        else if (!lastToken.equals(")")) {
+                            currentInput.append(command);
+                        }
                         display.setText(currentInput.toString());
                     }
                     break;
@@ -352,17 +355,6 @@ public class CalculatorUI {
                     }
                     break;
             }
-        }
-
-        /**
-         * Évalue l'expression mathématique contenue dans la chaîne.
-         * @param expression La chaîne d'expression à évaluer.
-         * @return Le résultat du calcul.
-         */
-        private String evaluateExpression(String expression) throws CalculatorException {
-            Calculator calculator = new Calculator();
-            CalculationResult result = calculator.evaluateExpression(expression);
-            return result.getFormattedResult();
         }
     }
 }

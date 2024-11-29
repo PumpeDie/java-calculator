@@ -84,7 +84,7 @@ public class Calculator {
     }
 
     // Pattern précompilé comme constante de classe
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("(?<!\\d)-\\d+\\.?\\d*|\\d+\\.?\\d*|[+\\-x÷%()]");
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("(?<=[^\\d\\)])-\\d+\\.?\\d*|\\d+\\.?\\d*|[+\\-x÷%()]");
         
     /**
      * Méthode pour convertir une expression mathématique en notation postfixée.

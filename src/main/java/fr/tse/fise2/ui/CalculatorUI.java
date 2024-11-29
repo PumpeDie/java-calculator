@@ -294,8 +294,8 @@ public class CalculatorUI {
                             currentInput.setLength(currentInput.length() - 1);
                             currentInput.append(command);
                         } 
-                        // Sinon, ajouter le nouvel opérateur si ce n'est pas une parenthèse fermante
-                        else if (!lastToken.equals(")")) {
+                        // Autoriser l'ajout d'opérateur après une parenthèse fermante
+                        else {
                             currentInput.append(command);
                         }
                         display.setText(currentInput.toString());

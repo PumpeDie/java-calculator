@@ -220,6 +220,25 @@ public class CalculatorUI {
             return result.getFormattedResult();
         }
 
+        private String addMissingParentheses(String expression) {
+            int openCount = 0;
+            int closeCount = 0;
+            
+            // Compter les parenthèses
+            for (char c : expression.toCharArray()) {
+                if (c == '(') openCount++;
+                if (c == ')') closeCount++;
+            }
+            
+            // Ajouter les parenthèses manquantes
+            StringBuilder balanced = new StringBuilder(expression);
+            for (int i = 0; i < openCount - closeCount; i++) {
+                balanced.append(")");
+            }
+            
+            return balanced.toString();
+        }
+
         // Méthode utilitaire pour vérifier si c'est un opérateur
         private boolean isOperator(String token) {
             return "+-x÷".contains(token);
@@ -371,6 +390,8 @@ public class CalculatorUI {
                     if (currentInput.length() > 0) {
                         try {
                             String expression = currentInput.toString();
+                            // Ajouter les parenthèses manquantes avant l'évaluation
+                            expression = addMissingParentheses(expression);
                             String result = evaluateExpression(expression);
                             // Mettre à jour l'affichage de l'expression
                             expressionDisplay.setText(expression);

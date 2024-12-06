@@ -40,11 +40,36 @@ public class Calculator {
         String previousToken = null;
         while (matcher.find()) {
             String token = matcher.group();
-            
-            // Multiplication implicite après une parenthèse fermante
-            if (previousToken != null && previousToken.equals(")") && 
-                token.matches("\\d+\\.?\\d*")) {
-                tokens.add("x");
+        
+            // Multiplication implicite dans les cas suivants :
+            if (previousToken != null) {
+                // 1. Après un nombre
+                if (previousToken.matches("-?\\d+\\.?\\d*")) {
+                    if (token.equals("(") || token.equals("π") || 
+                        isUnaryFunction(token)) {
+                        tokens.add("x");
+                    }
+                }
+                // 2. Après une parenthèse fermante
+                else if (previousToken.equals(")")) {
+                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("π") || 
+                        token.equals("(") || isUnaryFunction(token)) {
+                        tokens.add("x");
+                    }
+                }
+                // 3. Après π
+                else if (previousToken.equals("π")) {
+                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("(") || 
+                        isUnaryFunction(token)) {
+                        tokens.add("x");
+                    }
+                }
+                // 4. Après une fonction
+                else if (isUnaryFunction(previousToken)) {
+                    if (!token.equals("(")) {
+                        tokens.add("x");
+                    }
+                }
             }
             
             // Gestion des nombres négatifs entre parenthèses
@@ -134,12 +159,16 @@ public class Calculator {
      * @return Un objet CalculationResult contenant le résultat et les informations pertinentes.
      */
     public CalculationResult evaluateExpression(String expression) throws CalculatorException {
-        // Remplacer π par sa valeur
-        expression = expression.replace("π", String.valueOf(Math.PI));
-        
         List<String> tokens = tokenize(expression);
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
+
+        // Remplacer π par sa valeur
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).equals("π")) {
+                tokens.set(i, String.valueOf(Math.PI));
+            }
+        }
 
         for (String token : tokens) {
             if (isNumeric(token)) {

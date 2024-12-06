@@ -14,7 +14,7 @@ public class Calculator {
     private CalculatorEngine engine;
 
     // Nouveau pattern incluant toutes les fonctions scientifiques
-    private static final Pattern TOKEN_PATTERN = Pattern.compile(
+    public static final Pattern TOKEN_PATTERN = Pattern.compile(
         "(?<=[^\\d\\)])-\\d+\\.?\\d*|" +    // Nombres négatifs
         "\\d+\\.?\\d*|" +                    // Nombres positifs
         "[+\\-x÷%()^!]|" +                   // Opérateurs et parenthèses

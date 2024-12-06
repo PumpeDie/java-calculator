@@ -85,19 +85,19 @@ public class CalculatorUI {
     }
 
     // Getters et setters pour les champs de la classe
-    public JTextField getDisplay() {
+    protected JTextField getDisplay() {
         return display;
     }
 
-    public JPanel getPanel() {
+    protected JPanel getPanel() {
         return panel;
     }
 
-    public StringBuilder getCurrentInput() {
+    protected StringBuilder getCurrentInput() {
         return currentInput;
     }
 
-    public JButton getAcButton() {
+    protected JButton getAcButton() {
         return acButton;
     }
     protected void setDisplay(String text) {
@@ -249,10 +249,39 @@ public class CalculatorUI {
                     break;
     
                 case "←":
-                    // Supprime le dernier élément de currentInput
+                    // Supprime le dernier token de currentInput
                     if (currentInput.length() > 0) {
-                        currentInput.deleteCharAt(currentInput.length() - 1);
+                        // Réutiliser le pattern de la classe Calculator pour identifier les tokens
+                        Pattern tokenPattern = Calculator.TOKEN_PATTERN;
+                        String input = currentInput.toString();
+                        Matcher matcher = tokenPattern.matcher(input);
+                        
+                        // Trouver le dernier token
+                        String lastToken = "";
+                        int lastStart = -1;
+                        
+                        while (matcher.find()) {
+                            lastToken = matcher.group();
+                            lastStart = matcher.start();
+                        }
+                        
+                        // Si on trouve un token et que c'est bien le dernier
+                        if (lastStart != -1 && lastStart + lastToken.length() == input.length()) {
+                            // Pour les nombres, supprimer seulement le dernier chiffre
+                            if (lastToken.matches("-?\\d+\\.?\\d*")) {
+                                currentInput.deleteCharAt(currentInput.length() - 1);
+                            } else {
+                                // Pour les autres tokens (opérateurs, fonctions), supprimer le token entier
+                                currentInput.setLength(lastStart);
+                            }
+                        } else {
+                            // Si pas de token trouvé ou token incomplet, supprimer le dernier caractère
+                            currentInput.deleteCharAt(currentInput.length() - 1);
+                        }
+                        
+                        // Mettre à jour l'affichage
                         display.setText(currentInput.length() > 0 ? currentInput.toString() : "0");
+                        
                         // Si currentInput est vide, changer le bouton à "AC"
                         if (currentInput.length() == 0) {
                             acButton.setText("AC");

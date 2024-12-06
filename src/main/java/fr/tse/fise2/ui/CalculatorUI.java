@@ -84,13 +84,37 @@ public class CalculatorUI {
         }
     }
 
-    // Getters pour les champs de texte et le panneau de boutons
+    // Getters et setters pour les champs de la classe
     public JTextField getDisplay() {
         return display;
     }
 
     public JPanel getPanel() {
         return panel;
+    }
+
+    public StringBuilder getCurrentInput() {
+        return currentInput;
+    }
+
+    public JButton getAcButton() {
+        return acButton;
+    }
+    protected void setDisplay(String text) {
+        this.display.setText(text);
+    }
+    
+    protected void setCurrentInput(String text) {
+        this.currentInput.setLength(0);
+        this.currentInput.append(text);
+    }
+    
+    protected void appendToCurrentInput(String text) {
+        this.currentInput.append(text);
+    }
+    
+    protected void clearCurrentInput() {
+        this.currentInput.setLength(0);
     }
 
     protected void handleScientificMode() {

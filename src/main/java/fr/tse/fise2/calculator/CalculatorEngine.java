@@ -95,6 +95,20 @@ public class CalculatorEngine {
     }
 
     /**
+     * Calcule l'arc sinus d'un nombre.
+     * @param a Le nombre
+     * @return L'arc sinus du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double arcsin(double a) throws CalculatorException {
+        if (a < -1 || a > 1) {
+            throw new CalculatorException("L'arc sinus n'est défini que pour les nombres entre -1 et 1.");
+        }
+        lastResult = Math.toDegrees(Math.asin(a));
+        return lastResult;
+    }
+
+    /**
      * Calcule le cosinus d'un angle en degrés.
      * @param a L'angle en degrés
      * @return Le cosinus de l'angle
@@ -102,6 +116,20 @@ public class CalculatorEngine {
      */
     public double cos(double a) throws CalculatorException {
         lastResult = Math.cos(Math.toRadians(a));
+        return lastResult;
+    }
+
+    /**
+     * Calcule l'arc cosinus d'un nombre.
+     * @param a Le nombre
+     * @return L'arc cosinus du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double arccos(double a) throws CalculatorException {
+        if (a < -1 || a > 1) {
+            throw new CalculatorException("L'arc cosinus n'est défini que pour les nombres entre -1 et 1.");
+        }
+        lastResult = Math.toDegrees(Math.acos(a));
         return lastResult;
     }
 
@@ -117,6 +145,17 @@ public class CalculatorEngine {
     }
 
     /**
+     * Calcule l'arc tangente d'un nombre.
+     * @param a Le nombre
+     * @return L'arc tangente du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double arctan(double a) throws CalculatorException {
+        lastResult = Math.toDegrees(Math.atan(a));
+        return lastResult;
+    }
+
+    /**
      * Calcule le logarithme naturel d'un nombre.
      * @param a Le nombre
      * @return Le logarithme naturel du nombre
@@ -127,6 +166,17 @@ public class CalculatorEngine {
             throw new CalculatorException("Le logarithme naturel n'est défini que pour les nombres positifs.");
         }
         lastResult = Math.log(a);
+        return lastResult;
+    }
+
+    /**
+     * Calcule l'exponentielle d'un nombre.
+     * @param a Le nombre
+     * @return L'exponentielle du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double exp(double a) throws CalculatorException {
+        lastResult = Math.exp(a);
         return lastResult;
     }
 

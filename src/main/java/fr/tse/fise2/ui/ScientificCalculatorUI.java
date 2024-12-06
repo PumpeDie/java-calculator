@@ -18,6 +18,18 @@ public class ScientificCalculatorUI extends CalculatorUI {
         "π", "(" , ")",
     };
 
+    private void applyButtonStyle(JButton button, String text) {
+        if (isTrigoButton(text)) {
+            UIStyle.styleButton(button, Color.ORANGE, Color.WHITE, UIStyle.getUIFont());
+        } else {
+            UIStyle.styleButton(button, Color.DARK_GRAY, Color.WHITE, UIStyle.getUIFont());
+        }
+    }
+    
+    private boolean isTrigoButton(String text) {
+        return text.matches("sin|cos|tan|asin|acos|atan");
+    }
+
     public ScientificCalculatorUI() {
         super();
         initializeScientificPanel();
@@ -31,18 +43,10 @@ public class ScientificCalculatorUI extends CalculatorUI {
         UIStyle.stylePanel(scientificPanel, Color.BLACK);
         scientificPanel.setPreferredSize(new Dimension(300, 600));
         
-        for (String buttonText : SCIENTIFIC_BUTTONS) {
-            JButton button = new JButton(buttonText);
-            
-            // Appliquer les mêmes styles que la calculatrice de base
-            if ("sin".equals(buttonText) || "cos".equals(buttonText) || "tan".equals(buttonText) || "asin".equals(buttonText) || "acos".equals(buttonText) || "atan".equals(buttonText)) {
-                // Style orange comme les opérateurs
-                UIStyle.styleButton(button, Color.ORANGE, Color.WHITE, UIStyle.getUIFont());
-            } else {
-                // Style gris foncé
-                UIStyle.styleButton(button, Color.DARK_GRAY, Color.WHITE, UIStyle.getUIFont());
-            }
-            
+        // Ajouter les boutons scientifiques
+        for (String text : SCIENTIFIC_BUTTONS) {
+            JButton button = new JButton(text);
+            applyButtonStyle(button, text);
             button.addActionListener(new ScientificButtonClickListener());
             scientificPanel.add(button);
         }
@@ -78,6 +82,15 @@ public class ScientificCalculatorUI extends CalculatorUI {
         toggleScientificMode();
     }
 
+    protected String getCurrentDisplayText() {
+        return getDisplay().getText();
+    }
+
+    protected void updateDisplay(String text) {
+        setDisplay(text);
+        setCurrentInput(text);
+    }
+
     private void toggleScientificMode() {
         isScientificMode = !isScientificMode;
         scientificPanel.setVisible(isScientificMode);
@@ -96,38 +109,39 @@ public class ScientificCalculatorUI extends CalculatorUI {
     private class ScientificButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            JTextField display = getDisplay(); // Utiliser le getter existant
             String command = e.getActionCommand();
-            String currentText = display.getText();
-            StringBuilder input = new StringBuilder(currentText);
+            String currentText = getCurrentDisplayText();
+            
+            // Reset si affichage est "0"
+            if (currentText.equals("0")) {
+                clearCurrentInput();
+            }
             
             switch (command) {
                 case "sin": case "cos": case "tan": 
                 case "asin": case "acos": case "atan":
-                case "ln":
-                    input.append(command).append("(");
+                case "ln": case "exp":
+                    appendToCurrentInput(command + "(");
                     break;
                 case "√":
-                    input.append("sqrt(");
+                    appendToCurrentInput("sqrt(");
                     break;
                 case "x²":
-                    input.append("^2");
+                    appendToCurrentInput("^2");
                     break;
                 case "xʸ":
-                    input.append("^");
-                    break;
-                case "π":
-                    input.append(String.valueOf(Math.PI));
+                    appendToCurrentInput("^");
                     break;
                 case "n!":
-                    input.append("!");
+                    appendToCurrentInput("!");
                     break;
-                case "(": case ")":
-                    input.append(command);
+                case "(": case ")": case "π":
+                    appendToCurrentInput(command);
                     break;
             }
             
-            display.setText(input.toString());
+            updateDisplay(getCurrentInput().toString());
+            getAcButton().setText("←");
         }
     }
 }

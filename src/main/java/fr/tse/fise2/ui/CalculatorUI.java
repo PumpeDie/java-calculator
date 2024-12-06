@@ -44,6 +44,9 @@ public class CalculatorUI {
         panel = new JPanel();
         panel.setLayout(new GridLayout(5, 4, 5, 5)); // Grille 5x4 pour les boutons avec un espacement de 5px
 
+        // Sytle du panel
+        UIStyle.stylePanel(panel, Color.BLACK);
+
         // Ajouter les boutons
         String[] buttons = {
             "AC", "±", "%", "÷",
@@ -90,6 +93,10 @@ public class CalculatorUI {
         return panel;
     }
 
+    protected void handleScientificMode() {
+        // Méthode vide pour être écrasée par ScientificCalculatorUI
+    }
+    
     /**
      * Crée l'interface graphique (GUI) et l'affiche.
      * Configure le JFrame principal, ajoute les boutons et configure la mise en page.
@@ -98,6 +105,7 @@ public class CalculatorUI {
         JFrame frame = new JFrame("Calculatrice");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
+        frame.setResizable(false);
 
         // Appliquer le style au champ d'affichage et au champ d'expression
         UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 50);
@@ -303,8 +311,7 @@ public class CalculatorUI {
                     break;
     
                 case "Sci":
-                    // Affiche la calculatrice scientifique
-                    // À définir
+                    handleScientificMode();
                     break;
     
                 case "=":

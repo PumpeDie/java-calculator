@@ -84,6 +84,95 @@ public class CalculatorEngine {
     }
 
     /**
+     * Calcule le sinus d'un angle en degrés.
+     * @param a L'angle en degrés
+     * @return Le sinus de l'angle
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double sin(double a) throws CalculatorException {
+        lastResult = Math.sin(Math.toRadians(a));
+        return lastResult;
+    }
+
+    /**
+     * Calcule le cosinus d'un angle en degrés.
+     * @param a L'angle en degrés
+     * @return Le cosinus de l'angle
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double cos(double a) throws CalculatorException {
+        lastResult = Math.cos(Math.toRadians(a));
+        return lastResult;
+    }
+
+    /**
+     * Calcule la tangente d'un angle en degrés.
+     * @param a L'angle en degrés
+     * @return La tangente de l'angle
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double tan(double a) throws CalculatorException {
+        lastResult = Math.tan(Math.toRadians(a));
+        return lastResult;
+    }
+
+    /**
+     * Calcule le logarithme naturel d'un nombre.
+     * @param a Le nombre
+     * @return Le logarithme naturel du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double ln(double a) throws CalculatorException {
+        if (a <= 0) {
+            throw new CalculatorException("Le logarithme naturel n'est défini que pour les nombres positifs.");
+        }
+        lastResult = Math.log(a);
+        return lastResult;
+    }
+
+    /**
+     * Calcule la racine carrée d'un nombre.
+     * @param a Le nombre
+     * @return La racine carrée du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double sqrt(double a) throws CalculatorException {
+        if (a < 0) {
+            throw new CalculatorException("La racine carrée n'est définie que pour les nombres positifs.");
+        }
+        lastResult = Math.sqrt(a);
+        return lastResult;
+    }
+
+    /**
+     * Calcule la puissance d'un nombre.
+     * @param a La base
+     * @param b L'exposant
+     * @return La puissance de la base à l'exposant
+     */
+    public double pow(double a, double b) {
+        lastResult = Math.pow(a, b);
+        return lastResult;
+    }
+
+    /**
+     * Calcule le factoriel d'un nombre.
+     * @param a Le nombre
+     * @return Le factoriel du nombre
+     * @throws CalculatorException Si une erreur se produit lors du calcul
+     */
+    public double factorial(double a) throws CalculatorException {
+        if (a < 0) {
+            throw new CalculatorException("Le factoriel n'est défini que pour les nombres positifs.");
+        }
+        lastResult = 1;
+        for (int i = 1; i <= a; i++) {
+            lastResult *= i;
+        }
+        return lastResult;
+    }
+
+    /**
      * Retourne le dernier résultat calculé.
      * @return Dernier résultat
      */

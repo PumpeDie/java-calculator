@@ -16,12 +16,12 @@ public class Calculator {
     // Nouveau pattern incluant toutes les fonctions scientifiques
     public static final Pattern TOKEN_PATTERN = Pattern.compile(
         "(?<=[^\\d\\)])-\\d+\\.?\\d*|" +    // Nombres négatifs
-        "\\d+\\.?\\d*|" +                    // Nombres positifs
-        "[+\\-x÷%()^!]|" +                   // Opérateurs et parenthèses, y compris '%'
-        "mod|" +                             // Opérateur modulo
-        "sin|cos|tan|" +                      // Fonctions trigo
-        "arcsin|arccos|arctan|" +             // Fonctions trigo inverses
-        "ln|exp|sqrt|π"                        // Autres fonctions
+        "\\d+\\.?\\d*|" +                   // Nombres positifs
+        "[+\\-x÷%()^!]|" +                  // Opérateurs et parenthèses, y compris '%'
+        "mod|" +                            // Opérateur modulo
+        "sin|cos|tan|" +                    // Fonctions trigo
+        "arcsin|arccos|arctan|" +           // Fonctions trigo inverses
+        "ln|exp|sqrt|π"                     // Autres fonctions
     );
 
     public Calculator() {

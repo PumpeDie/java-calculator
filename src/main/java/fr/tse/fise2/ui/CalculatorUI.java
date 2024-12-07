@@ -10,210 +10,381 @@ import fr.tse.fise2.calculator.CalculationResult;
 import fr.tse.fise2.calculator.CalculatorException;
 
 /**
- * Classe CalculatorUI qui gère l'interface utilisateur graphique (GUI) pour la calculatrice.
- * Utilise Swing pour afficher les boutons et le champ de texte.
+ * Classe CalculatorUI qui gère l'interface utilisateur graphique pour la calculatrice.
+ * Cette classe est responsable de la création des composants de l'interface utilisateur
+ * et de la gestion des événements des boutons.
+ * Cette classe est conçue pour être étendue par une classe ScientificCalculatorUI
+ * qui ajoute des fonctionnalités supplémentaires à la calculatrice.
  */
 public class CalculatorUI {
 
-    // Champ de texte utilisé pour afficher les résultats de la calculatrice.
+    // Constantes pour les labels des boutons et les opérateurs
+    private static final String[] BUTTON_LABELS = {
+        "AC", "±", "%", "÷",
+        "7", "8", "9", "x",
+        "4", "5", "6", "-",
+        "1", "2", "3", "+",
+        "Sci", "0", ".", "="
+    };
+    private static final String OPERATORS = "+-x÷";
+
+    // Composants de l'interface utilisateur
     private JTextField display;
-
-    // Champ de texte pour afficher l'expression validé de l'utilisateur.
     private JTextField expressionDisplay;
-
-    // Panel contenant les boutons de la calculatrice.
     private JPanel panel;
-
-    // StringBuilder pour stocker l'entrée actuelle de l'utilisateur.
-    private StringBuilder currentInput;
-
-    // Bouton pour effacer l'entrée utilisateur.
     private JButton acButton;
 
-    // Constructeur de la classe CalculatorUI.
+    // Stockage de l'entrée utilisateur
+    private StringBuilder currentInput;
+
+    // Gestion de l'affichage
+    private DisplayManager displayManager;
+
+    // Constructeur
     public CalculatorUI() {
-        display = new JTextField();                          // Créer un champ JTextField pour afficher les résultats
-        display.setName("display");                     // Définir un nom pour le champ JTextField
-        display.setText("0");                              // Afficher 0 par défaut
-        expressionDisplay = new JTextField();                // Créer un champ JTextField pour afficher l'expression
-        expressionDisplay.setName("expressionDisplay"); // Définir un nom pour le champ JTextField
-        expressionDisplay.setEditable(false);              // Empêcher l'édition de l'expression
-        currentInput = new StringBuilder();                  // Initialise le StringBuilder pour l'entrée utilisateur
+        currentInput = new StringBuilder();
+        initComponents();
+    }
 
-        // Initialiser le panneau de boutons
+    /**
+     * Initialiser les composants de l'interface utilisateur.
+     * Créer les champs d'affichage, les boutons et les gestionnaires d'événements.
+     */
+    private void initComponents() {
+        // Initialiser les champs d'affichage
+        display = new JTextField();
+        display.setName("display");
+        display.setEditable(false);
+        display.setText("0");
+
+        expressionDisplay = new JTextField();
+        expressionDisplay.setName("expressionDisplay");
+        expressionDisplay.setEditable(false);
+
+        // Appliquer les styles
+        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 50);
+        UIStyle.styleTextField(expressionDisplay, Color.BLACK, Color.LIGHT_GRAY, new Font(UIStyle.getUIFont().getName(), Font.BOLD, 14), 50);
+
+        // Gestionnaire d'affichage
+        displayManager = new DisplayManager(display, expressionDisplay);
+
+        // Initialiser le panneau des boutons
         panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 4, 5, 5)); // Grille 5x4 pour les boutons avec un espacement de 5px
-
-        // Sytle du panel
+        panel.setLayout(new GridLayout(5, 4, 5, 5));
         UIStyle.stylePanel(panel, Color.BLACK);
 
-        // Ajouter les boutons
-        String[] buttons = {
-            "AC", "±", "%", "÷",
-            "7", "8", "9", "x",
-            "4", "5", "6", "-",
-            "1", "2", "3", "+",
-            "Sci", "0", ".", "="
-        };
+        initializeButtons();
+    }
 
-        // Boucle pour créer et ajouter les boutons au panel
-        for (String text : buttons) {
-            JButton button = new JButton(text);
-            // Garder une référence au bouton "AC"
+    // Initialiser les boutons de l'interface utilisateur
+    private void initializeButtons() {
+        for (String text : BUTTON_LABELS) {
+            JButton button = createButton(text);
+            panel.add(button);
             if ("AC".equals(text)) {
                 acButton = button;
             }
-            // Définir les styles des boutons en utilisant UIStyle
-            if ("÷".equals(text) || "x".equals(text) || "-".equals(text) || "+".equals(text) || "=".equals(text)) {
-                UIStyle.styleButton(button, Color.ORANGE, Color.WHITE, UIStyle.getUIFont());
-            } else if ("AC".equals(text) || "±".equals(text) || "%".equals(text)) {
-                UIStyle.styleButton(button, Color.LIGHT_GRAY, Color.WHITE, UIStyle.getUIFont());
-            } else if ("Sci".equals(text) || text.matches("[0-9]") || ".".equals(text)) {
-                UIStyle.styleButton(button, Color.DARK_GRAY, Color.WHITE, UIStyle.getUIFont());
-            }
-
-            // Définir les noms des boutons pour les tests
-            if ("←".equals(text)) {
-                button.setName("backspace");
-            } else if ("±".equals(text)) {
-                button.setName("plusMinus");
-            }
-
-            button.addActionListener(new ButtonClickListener());
-            panel.add(button);
         }
     }
 
-    // Getters et setters pour les champs de la classe
-    protected JTextField getDisplay() {
-        return display;
+    // Créer un bouton avec le texte spécifié et ajouter un gestionnaire d'événements
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        styleButton(button, text);
+        button.addActionListener(new ButtonClickListener());
+        return button;
     }
 
-    protected JPanel getPanel() {
-        return panel;
+    // Appliquer le style approprié en fonction du texte du bouton
+    private void styleButton(JButton button, String text) {
+        if (OPERATORS.contains(text) || "=".equals(text)) {
+            UIStyle.styleButton(button, Color.ORANGE, Color.WHITE, UIStyle.getUIFont());
+        } else if ("AC±%".contains(text)) {
+            UIStyle.styleButton(button, Color.LIGHT_GRAY, Color.WHITE, UIStyle.getUIFont());
+        } else {
+            UIStyle.styleButton(button, Color.DARK_GRAY, Color.WHITE, UIStyle.getUIFont());
+        }
     }
 
-    protected StringBuilder getCurrentInput() {
-        return currentInput;
-    }
-
-    protected JButton getAcButton() {
-        return acButton;
-    }
-    protected void setDisplay(String text) {
-        this.display.setText(text);
-    }
-    
-    protected void setCurrentInput(String text) {
-        this.currentInput.setLength(0);
-        this.currentInput.append(text);
-    }
-    
-    protected void appendToCurrentInput(String text) {
-        this.currentInput.append(text);
-    }
-    
-    protected void clearCurrentInput() {
-        this.currentInput.setLength(0);
-    }
-
-    protected void handleScientificMode() {
-        // Méthode vide pour être écrasée par ScientificCalculatorUI
-    }
-    
-    /**
-     * Crée l'interface graphique (GUI) et l'affiche.
-     * Configure le JFrame principal, ajoute les boutons et configure la mise en page.
-     */
+    // Créer et afficher l'interface graphique de la calculatrice
     public void createAndShowGUI() {
         JFrame frame = new JFrame("Calculatrice");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
         frame.setResizable(false);
 
-        // Appliquer le style au champ d'affichage et au champ d'expression
-        UIStyle.styleTextField(display, Color.BLACK, Color.WHITE, UIStyle.getUIFont(), 50);
-        UIStyle.styleTextField(expressionDisplay, Color.BLACK, Color.LIGHT_GRAY, new Font(UIStyle.getUIFont().getName(), Font.BOLD, 14), 50);
-
-        // Gérer les événements clavier pour les touches numériques et les opérateurs
-        display.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                char keyChar = e.getKeyChar();
-                String command = String.valueOf(keyChar);
-        
-                // Vérifier si la touche est un chiffre ou un opérateur
-                if (Character.isDigit(keyChar) || "+-.%".indexOf(keyChar) != -1 || e.getKeyCode() == KeyEvent.VK_DIVIDE || e.getKeyCode() == KeyEvent.VK_MULTIPLY) {
-                    // Simuler un clic sur le bouton correspondant
-                    for (Component comp : panel.getComponents()) {
-                        if (comp instanceof JButton) {
-                            JButton button = (JButton) comp;
-                            // Gestion spéciale pour '*' et '/'
-                            if (e.getKeyCode() == KeyEvent.VK_DIVIDE && button.getText().equals("÷")) {
-                                button.doClick();
-                                System.out.println("Key pressed: " + keyChar);
-                                break;
-                            } else if (e.getKeyCode() == KeyEvent.VK_MULTIPLY && button.getText().equals("x")) {
-                                button.doClick();
-                                System.out.println("Key pressed: " + keyChar);
-                                break;
-                            } else if (button.getText().equals(command)) {
-                                button.doClick();
-                                System.out.println("Key pressed: " + keyChar);
-                                break;
-                            }
-                        }
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    // Simuler un clic sur le bouton "="
-                    for (Component comp : panel.getComponents()) {
-                        if (comp instanceof JButton) {
-                            JButton button = (JButton) comp;
-                            if (button.getText().equals("=")) {
-                                button.doClick();
-                                break;
-                            }
-                        }
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    // Simuler un clic sur le bouton "←" pour effacer
-                    for (Component comp : panel.getComponents()) {
-                        if (comp instanceof JButton) {
-                            JButton button = (JButton) comp;
-                            if (button.getText().equals("←")) {
-                                button.doClick();
-                                break;
-                            }
-                        }
-                    }
-                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    // Fermer l'application avec la touche ÉCHAP
-                    System.out.println("Fermeture de l'application");
-                    System.exit(0);
-                }
-            }
-        });
-
+        // Panneau d'affichage
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
         UIStyle.stylePanel(displayPanel, Color.BLACK);
-
         displayPanel.add(expressionDisplay);
         displayPanel.add(display);
 
-        frame.add(displayPanel, BorderLayout.NORTH); // Affichage des résultats en haut
-        frame.add(panel, BorderLayout.CENTER);  // Boutons au centre
+        frame.add(displayPanel, BorderLayout.NORTH);
+        frame.add(panel, BorderLayout.CENTER);
+
+        // Gestion des événements clavier
+        display.addKeyListener(new CalculatorKeyListener());
 
         frame.setVisible(true);
     }
 
+    // Classe pour gérer l'affichage des champs de texte de la calculatrice 
+    private class DisplayManager {
+        private final JTextField display;
+        private final JTextField expressionDisplay;
+
+        public DisplayManager(JTextField display, JTextField expressionDisplay) {
+            this.display = display;
+            this.expressionDisplay = expressionDisplay;
+        }
+
+        void updateDisplay(String text) {
+            display.setText(text);
+        }
+
+        void updateExpression(String expression) {
+            expressionDisplay.setText(expression);
+        }
+    }
+
+    // Gestion des entrées clavier
+    private class CalculatorKeyListener extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            handleKeyPress(e);
+        }
+    }
+
+    // Méthode pour gérer les entrées clavier et simuler les clics de bouton
+    private void handleKeyPress(KeyEvent e) {
+        char keyChar = e.getKeyChar();
+        String command = String.valueOf(keyChar);
+
+        if (Character.isDigit(keyChar) || "+-.%".indexOf(keyChar) != -1 ||
+            e.getKeyCode() == KeyEvent.VK_DIVIDE || e.getKeyCode() == KeyEvent.VK_MULTIPLY) {
+
+            for (Component comp : panel.getComponents()) {
+                if (comp instanceof JButton) {
+                    JButton button = (JButton) comp;
+                    if (e.getKeyCode() == KeyEvent.VK_DIVIDE && button.getText().equals("÷")) {
+                        button.doClick();
+                        break;
+                    } else if (e.getKeyCode() == KeyEvent.VK_MULTIPLY && button.getText().equals("x")) {
+                        button.doClick();
+                        break;
+                    } else if (button.getText().equals(command)) {
+                        button.doClick();
+                        break;
+                    }
+                }
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            simulateButtonClick("=");
+        } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            simulateButtonClick("←");
+        } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            System.exit(0);
+        }
+    }
+
+    // Méthode pour simuler un clic de bouton
+    private void simulateButtonClick(String buttonText) {
+        for (Component comp : panel.getComponents()) {
+            if (comp instanceof JButton) {
+                JButton button = (JButton) comp;
+                if (button.getText().equals(buttonText)) {
+                    button.doClick();
+                    break;
+                }
+            }
+        }
+    }
+
     /**
-     * Classe interne ButtonClickListener qui gère les actions des boutons.
-     * Implémente l'interface ActionListener pour écouter et traiter les clics sur les boutons.
+     * Classe interne pour gérer les événements des boutons de la calculatrice.
+     * Cette classe implémente l'interface ActionListener pour écouter les événements de clic de bouton.
+     * Elle implémente la méthode actionPerformed pour gérer les événements de clic de bouton.
+     * Cette classe gère les événements pour les boutons numériques, les opérateurs et les fonctions.
+     * Elle met à jour l'affichage de la calculatrice en fonction de l'entrée de l'utilisateur.
+     * Elle gère également les événements pour les boutons spéciaux tels que AC, ←, ±, % et =.
+     * Elle utilise les méthodes de la classe Calculator pour évaluer les expressions mathématiques.
+     * Elle gère également les événements pour le mode scientifique de la calculatrice.
+     * Cette classe est conçue pour être étendue par une classe ScientificButtonClickListener
+     * qui ajoute des fonctionnalités supplémentaires à la calculatrice.
      */
     private class ButtonClickListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            if (Character.isDigit(command.charAt(0)) || ".".equals(command)) {
+                handleNumberInput(command);
+            } else if (OPERATORS.contains(command)) {
+                handleOperatorInput(command);
+            } else {
+                switch (command) {
+                    case "AC":
+                        handleAC();
+                        break;
+                    case "←":
+                        handleBackspace();
+                        break;
+                    case "±":
+                        handlePlusMinus();
+                        break;
+                    case "%":
+                        handlePercent();
+                        break;
+                    case "=":
+                        handleEquals();
+                        break;
+                    case "Sci":
+                        handleScientificMode();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
-        // Méthode pour évaluer l'expression donnée et renvoyer le résultat formaté.
+        private void handleNumberInput(String command) {
+            if (command.equals(".")) {
+                String currentExp = currentInput.toString();
+                Pattern pattern = Pattern.compile("[+\\-x÷]?([^+\\-x÷]*)$");
+                Matcher matcher = pattern.matcher(currentExp);
+
+                if (matcher.find()) {
+                    String lastOperand = matcher.group(1);
+                    if (!lastOperand.contains(".")) {
+                        if (lastOperand.isEmpty() || currentInput.length() == 0) {
+                            currentInput.append("0.");
+                        } else {
+                            currentInput.append(".");
+                        }
+                    }
+                } else if (currentInput.length() == 0) {
+                    currentInput.append("0.");
+                }
+            } else {
+                currentInput.append(command);
+            }
+            displayManager.updateDisplay(currentInput.toString());
+            acButton.setText("←");
+        }
+
+        private void handleOperatorInput(String command) {
+            if (currentInput.length() > 0) {
+                String lastToken = getLastToken();
+
+                if (isOperator(lastToken)) {
+                    currentInput.setLength(currentInput.length() - 1);
+                }
+                currentInput.append(command);
+                displayManager.updateDisplay(currentInput.toString());
+            }
+        }
+
+        private void handleAC() {
+            currentInput.setLength(0);
+            displayManager.updateDisplay("0");
+            displayManager.updateExpression("");
+            acButton.setText("AC");
+        }
+
+        private void handleBackspace() {
+            if (currentInput.length() > 0) {
+                String lastToken = getLastCompleteToken();
+                int newLength = currentInput.length() - lastToken.length();
+
+                if (isNumeric(lastToken) && lastToken.length() > 1) {
+                    currentInput.deleteCharAt(currentInput.length() - 1);
+                } else {
+                    currentInput.setLength(newLength);
+                }
+
+                displayManager.updateDisplay(currentInput.length() > 0 ? currentInput.toString() : "0");
+
+                if (currentInput.length() == 0) {
+                    acButton.setText("AC");
+                }
+            }
+        }
+
+        private void handlePlusMinus() {
+            if (currentInput.length() > 0) {
+                String expression = currentInput.toString();
+
+                // Si l'expression commence par un signe moins
+                if (expression.startsWith("-")) {
+                    // Enlever le signe moins
+                    currentInput.setLength(0);
+                    currentInput.append(expression.substring(1));
+                    displayManager.updateDisplay(currentInput.toString());
+                    return;
+                }
+        
+                // Trouver le dernier opérande, avec ou sans parenthèses
+                Pattern pattern = Pattern.compile("(.*?[+\\-x÷])?(\\(-?\\d+\\.?\\d*\\)|-?\\d+\\.?\\d*)$");
+                Matcher matcher = pattern.matcher(expression);
+        
+                if (matcher.find()) {
+                    String prefix = matcher.group(1) != null ? matcher.group(1) : "";
+                    String number = matcher.group(2);
+        
+                    // Vérifier si le nombre est entre parenthèses
+                    boolean isParenthesized = number.startsWith("(") && number.endsWith(")");
+        
+                    // Enlever les parenthèses pour faciliter le traitement
+                    if (isParenthesized) {
+                        number = number.substring(1, number.length() - 1);
+                    }
+        
+                    // Basculement du signe
+                    if (number.startsWith("-")) {
+                        // Enlever le signe négatif
+                        number = number.substring(1);
+                    } else {
+                        // Ajouter le signe négatif
+                        number = "-" + number;
+                    }
+        
+                    // Réappliquer les parenthèses si nécessaire
+                    if (number.startsWith("-")) {
+                        number = "(" + number + ")";
+                    }
+        
+                    currentInput.setLength(0);
+                    currentInput.append(prefix).append(number);
+                    displayManager.updateDisplay(currentInput.toString());
+                }
+            }
+        }
+
+        private void handlePercent() {
+            if (currentInput.length() > 0) {
+                currentInput.append("%");
+                displayManager.updateDisplay(currentInput.toString());
+            }
+        }
+
+        private void handleEquals() {
+            if (currentInput.length() > 0) {
+                try {
+                    String expression = currentInput.toString();
+                    expression = addMissingParentheses(expression);
+                    String result = evaluateExpression(expression);
+                    displayManager.updateExpression(expression);
+                    displayManager.updateDisplay(result);
+                    currentInput.setLength(0);
+                    currentInput.append(result);
+                    acButton.setText("AC");
+                } catch (CalculatorException ex) {
+                    displayManager.updateDisplay("Erreur: " + ex.getMessage());
+                }
+            }
+        }
+
+        // Méthodes utilitaires
         private String evaluateExpression(String expression) throws CalculatorException {
             Calculator calculator = new Calculator();
             CalculationResult result = calculator.evaluateExpression(expression);
@@ -223,219 +394,95 @@ public class CalculatorUI {
         private String addMissingParentheses(String expression) {
             int openCount = 0;
             int closeCount = 0;
-            
-            // Compter les parenthèses
+
             for (char c : expression.toCharArray()) {
                 if (c == '(') openCount++;
                 if (c == ')') closeCount++;
             }
-            
-            // Ajouter les parenthèses manquantes
+
             StringBuilder balanced = new StringBuilder(expression);
             for (int i = 0; i < openCount - closeCount; i++) {
                 balanced.append(")");
             }
-            
+
             return balanced.toString();
         }
 
-        // Méthode utilitaire pour vérifier si c'est un opérateur
-        private boolean isOperator(String token) {
-            return "+-x÷".contains(token);
-        }
-
-        // Méthode pour obtenir le dernier token de l'expression
         private String getLastToken() {
-            if (currentInput.length() == 0) {
-                return "";
-            }
+            if (currentInput.length() == 0) return "";
             return String.valueOf(currentInput.charAt(currentInput.length() - 1));
         }
-        
-        // Méthode pour gérer les actions des boutons
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            
-            // Traite l'action en fonction du texte du bouton
-            switch (command) {
-                case "AC":
-                    // Réinitialise l'entrée utilisateur
-                    currentInput.setLength(0);
-                    display.setText("0");
-                    expressionDisplay.setText("");
-                    acButton.setText("AC");
-                    break;
-    
-                case "←":
-                    // Supprime le dernier token de currentInput
-                    if (currentInput.length() > 0) {
-                        // Réutiliser le pattern de la classe Calculator pour identifier les tokens
-                        Pattern tokenPattern = Calculator.TOKEN_PATTERN;
-                        String input = currentInput.toString();
-                        Matcher matcher = tokenPattern.matcher(input);
-                        
-                        // Trouver le dernier token
-                        String lastToken = "";
-                        int lastStart = -1;
-                        
-                        while (matcher.find()) {
-                            lastToken = matcher.group();
-                            lastStart = matcher.start();
-                        }
-                        
-                        // Si on trouve un token et que c'est bien le dernier
-                        if (lastStart != -1 && lastStart + lastToken.length() == input.length()) {
-                            // Pour les nombres, supprimer seulement le dernier chiffre
-                            if (lastToken.matches("-?\\d+\\.?\\d*")) {
-                                currentInput.deleteCharAt(currentInput.length() - 1);
-                            } else {
-                                // Pour les autres tokens (opérateurs, fonctions), supprimer le token entier
-                                currentInput.setLength(lastStart);
-                            }
-                        } else {
-                            // Si pas de token trouvé ou token incomplet, supprimer le dernier caractère
-                            currentInput.deleteCharAt(currentInput.length() - 1);
-                        }
-                        
-                        // Mettre à jour l'affichage
-                        display.setText(currentInput.length() > 0 ? currentInput.toString() : "0");
-                        
-                        // Si currentInput est vide, changer le bouton à "AC"
-                        if (currentInput.length() == 0) {
-                            acButton.setText("AC");
-                        }
-                    }
-                    break;
 
-                case "±":
-                    // Change le signe du nombre actuel
-                    if (currentInput.length() > 0) {
-                        String expression = currentInput.toString();
-                        
-                        // Cas 1: Simple nombre (y compris résultat d'opération)
-                        if (expression.matches("-?\\d+\\.?\\d*")) {
-                            double value = Double.parseDouble(expression);
-                            currentInput.setLength(0);
-                            // Créer un CalculationResult temporaire pour le formatage
-                            CalculationResult temp = new CalculationResult(value < 0 ? -value : value, expression);
-                            String formattedValue = temp.getFormattedResult();
-                            currentInput.append(value < 0 ? formattedValue : "(-" + formattedValue + ")");
-                            display.setText(currentInput.toString());
-                            return;
-                        }
-                        
-                        // Cas 2: Expression avec opérateur à la fin
-                        Pattern opPattern = Pattern.compile("(.*[+\\-x÷])-?\\d+\\.?\\d*$");
-                        Matcher opMatcher = opPattern.matcher(expression);
-                        if (opMatcher.matches()) {
-                            String prefix = opMatcher.group(1);
-                            String number = expression.substring(prefix.length());
-                            currentInput.setLength(0);
-                            if (number.startsWith("-")) {
-                                currentInput.append(prefix).append(number.substring(1));
-                            } else {
-                                currentInput.append(prefix).append("(-").append(number).append(")");
-                            }
-                            display.setText(currentInput.toString());
-                            return;
-                        }
-                        
-                        // Cas 3: Expression avec parenthèses
-                        if (expression.contains("(")) {
-                            if (expression.startsWith("(-")) {
-                                // Enlever les parenthèses
-                                currentInput.setLength(0);
-                                currentInput.append(expression.substring(2, expression.length() - 1));
-                            } else {
-                                // Ajouter les parenthèses
-                                currentInput.setLength(0);
-                                currentInput.append("(-").append(expression).append(")");
-                            }
-                            display.setText(currentInput.toString());
-                        }
-                    }
-                    break;
-    
-                case "%":
-                    // Ajoute le pourcentage à l'entrée utilisateur
-                    if (currentInput.length() > 0) {
-                        currentInput.append("%");
-                        display.setText(currentInput.toString());
-                    }
-                    break;
-    
-                case "+": case "-": case "x": case "÷":
-                    if (currentInput.length() > 0) {
-                        String lastToken = getLastToken();
-                        
-                        // Si le dernier token est un opérateur, le remplacer
-                        if (isOperator(lastToken)) {
-                            currentInput.setLength(currentInput.length() - 1);
-                            currentInput.append(command);
-                        } 
-                        // Autoriser l'ajout d'opérateur après une parenthèse fermante
-                        else {
-                            currentInput.append(command);
-                        }
-                        display.setText(currentInput.toString());
-                    }
-                    break;
-    
-                case "Sci":
-                    handleScientificMode();
-                    break;
-    
-                case "=":
-                    if (currentInput.length() > 0) {
-                        try {
-                            String expression = currentInput.toString();
-                            // Ajouter les parenthèses manquantes avant l'évaluation
-                            expression = addMissingParentheses(expression);
-                            String result = evaluateExpression(expression);
-                            // Mettre à jour l'affichage de l'expression
-                            expressionDisplay.setText(expression);
-                            display.setText(result);
-                            currentInput.setLength(0);
-                            currentInput.append(result);
-                            // Changer le bouton en AC après le calcul
-                            acButton.setText("AC");
-                        } catch (CalculatorException ex) {
-                            display.setText("Erreur: " + ex.getMessage());
-                        }
-                    }
-                    break;
-    
-                default:
-                    // Ajoute le chiffre ou le point décimal à l'entrée utilisateur
-                    if (Character.isDigit(command.charAt(0)) || command.equals(".")) {
-                        if (command.equals(".")) {
-                            String currentExp = currentInput.toString();
-                            // Extraire la dernière opérande (nombre après le dernier opérateur)
-                            Pattern pattern = Pattern.compile("[+\\-x÷]?([^+\\-x÷]*)$");
-                            Matcher matcher = pattern.matcher(currentExp);
-                            
-                            if (matcher.find()) {
-                                String lastOperand = matcher.group(1);
-                                // Vérifier si la dernière opérande contient déjà un point
-                                if (!lastOperand.contains(".")) {
-                                    if (lastOperand.isEmpty() || currentInput.length() == 0) {
-                                        currentInput.append("0.");
-                                    } else {
-                                        currentInput.append(".");
-                                    }
-                                }
-                            } else if (currentInput.length() == 0) {
-                                currentInput.append("0.");
-                            }
-                        } else {
-                            currentInput.append(command); // Ajoute le chiffre
-                        }
-                        display.setText(currentInput.toString());
-                        acButton.setText("←"); // Changer le texte du bouton "AC" en "←"
-                    }
-                    break;
+        private String getLastCompleteToken() {
+            if (currentInput.length() == 0) return "";
+
+            String input = currentInput.toString();
+            Pattern tokenPattern = Calculator.TOKEN_PATTERN;
+            Matcher matcher = tokenPattern.matcher(input);
+            String lastToken = "";
+            int lastStart = -1;
+
+            while (matcher.find()) {
+                lastToken = matcher.group();
+                lastStart = matcher.start();
+            }
+
+            if (lastStart == -1 || lastStart + lastToken.length() < input.length()) {
+                return input.substring(input.length() - 1);
+            }
+
+            return lastToken;
+        }
+
+        private boolean isOperator(String token) {
+            return OPERATORS.contains(token);
+        }
+
+        private boolean isNumeric(String str) {
+            try {
+                Double.parseDouble(str);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
             }
         }
+    }
+    
+    // Getters et setters
+    protected JTextField getDisplay() {
+        return display;
+    }
+
+    protected void setDisplay(String text) {
+        display.setText(text);
+    }
+
+    protected StringBuilder getCurrentInput() {
+        return currentInput;
+    }
+
+    protected void setCurrentInput(String text) {
+        currentInput.setLength(0);
+        currentInput.append(text);
+    }
+
+    protected void clearCurrentInput() {
+        currentInput.setLength(0);
+    }
+
+    protected void appendToCurrentInput(String text) {
+        currentInput.append(text);
+    }
+
+    protected JButton getAcButton() {
+        return acButton;
+    }
+
+    protected JPanel getPanel() {
+        return panel;
+    }
+
+    protected void handleScientificMode() {
+        // Méthode à surcharger dans ScientificCalculatorUI
     }
 }

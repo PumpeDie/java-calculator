@@ -17,10 +17,11 @@ public class Calculator {
     public static final Pattern TOKEN_PATTERN = Pattern.compile(
         "(?<=[^\\d\\)])-\\d+\\.?\\d*|" +    // Nombres négatifs
         "\\d+\\.?\\d*|" +                    // Nombres positifs
-        "[+\\-x÷%()^!]|" +                   // Opérateurs et parenthèses
-        "sin|cos|tan|" +                     // Fonctions trigo
-        "arcsin|arccos|arctan|" +            // Fonctions trigo inverses
-        "ln|exp|sqrt|π"                      // Autres fonctions
+        "[+\\-x÷%()^!]|" +                   // Opérateurs et parenthèses, y compris '%'
+        "mod|" +                             // Opérateur modulo
+        "sin|cos|tan|" +                      // Fonctions trigo
+        "arcsin|arccos|arctan|" +             // Fonctions trigo inverses
+        "ln|exp|sqrt|π"                        // Autres fonctions
     );
 
     public Calculator() {
@@ -34,56 +35,83 @@ public class Calculator {
      */
     private List<String> tokenize(String expression) {
         List<String> tokens = new ArrayList<>();
-        // Utiliser le Pattern précompilé
         Matcher matcher = TOKEN_PATTERN.matcher(expression);
-        
-        String previousToken = null;
+    
+        // Étape 1 : Tokenisation initiale
         while (matcher.find()) {
-            String token = matcher.group();
-        
+            tokens.add(matcher.group());
+        }
+    
+        // Étape 2 : Remplacement conditionnel de '%' par 'mod'
+        List<String> processedTokens = new ArrayList<>();
+        for (int i = 0; i < tokens.size(); i++) {
+            String token = tokens.get(i);
+    
+            if (token.equals("%")) {
+                boolean isModulo = false;
+                if (i > 0 && i < tokens.size() - 1) {
+                    String prevToken = tokens.get(i - 1);
+                    String nextToken = tokens.get(i + 1);
+                    if (isNumeric(prevToken) && isNumeric(nextToken)) {
+                        isModulo = true;
+                    }
+                }
+    
+                if (isModulo) {
+                    processedTokens.add("mod");
+                } else {
+                    processedTokens.add("%");
+                }
+            } else {
+                processedTokens.add(token);
+            }
+        }
+    
+        // Étape 3 : Gestion de la multiplication implicite et des parenthèses
+        List<String> finalTokens = new ArrayList<>();
+        String previousToken = null;
+        for (String token : processedTokens) {
             // Multiplication implicite dans les cas suivants :
             if (previousToken != null) {
                 // 1. Après un nombre
                 if (previousToken.matches("-?\\d+\\.?\\d*")) {
-                    if (token.equals("(") || token.equals("π") || 
-                        isUnaryFunction(token)) {
-                        tokens.add("x");
+                    if (token.equals("(") || token.equals("π") || isUnaryFunction(token)) {
+                        finalTokens.add("x");
                     }
                 }
                 // 2. Après une parenthèse fermante
                 else if (previousToken.equals(")")) {
-                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("π") || 
-                        token.equals("(") || isUnaryFunction(token)) {
-                        tokens.add("x");
+                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("π") || token.equals("(") || isUnaryFunction(token)) {
+                        finalTokens.add("x");
                     }
                 }
                 // 3. Après π
                 else if (previousToken.equals("π")) {
-                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("(") || 
-                        isUnaryFunction(token)) {
-                        tokens.add("x");
+                    if (token.matches("-?\\d+\\.?\\d*") || token.equals("(") || isUnaryFunction(token)) {
+                        finalTokens.add("x");
                     }
                 }
                 // 4. Après une fonction
                 else if (isUnaryFunction(previousToken)) {
                     if (!token.equals("(")) {
-                        tokens.add("x");
+                        finalTokens.add("x");
                     }
                 }
             }
-            
+    
             // Gestion des nombres négatifs entre parenthèses
             if (token.startsWith("(-") && token.endsWith(")")) {
-                tokens.add("(");
-                tokens.add(token.substring(1, token.length() - 1));
-                tokens.add(")");
+                finalTokens.add("(");
+                finalTokens.add(token.substring(1, token.length() - 1));
+                finalTokens.add(")");
                 previousToken = ")";
             } else {
-                tokens.add(token);
+                finalTokens.add(token);
                 previousToken = token;
             }
         }
-        return tokens;
+    
+        return finalTokens;
     }
 
     /** 
@@ -92,6 +120,9 @@ public class Calculator {
      * @return true si la chaîne est un nombre, false sinon
      */
     private boolean isNumeric(String str) {
+        if (str.endsWith("%")) {
+            str = str.substring(0, str.length() - 1);
+        }
         try {
             Double.parseDouble(str);
             return true;
@@ -99,6 +130,7 @@ public class Calculator {
             return false;
         }
     }
+    
 
     private boolean isUnaryFunction(String token) {
         return token.matches("sin|cos|tan|arcsin|arccos|arctan|ln|exp|sqrt");
@@ -116,7 +148,7 @@ public class Calculator {
                 return 4; // Priorité haute pour les puissances
             case "(": case ")":
                 return 3;
-            case "x": case "÷": case "%":
+            case "x": case "÷": case "mod": case "%":
                 return 2;
             case "+": case "-":
                 return 1;
@@ -133,9 +165,9 @@ public class Calculator {
             case "-": return engine.subtract(a, b);
             case "x": return engine.multiply(a, b);
             case "÷": return engine.divide(a, b);
-            case "%": return b == Double.NEGATIVE_INFINITY ? 
-                     engine.percentOrModulo(a) : engine.percentOrModulo(a, b);
-            
+            case "%": return engine.percent(a);
+            case "mod": return engine.modulo(a, b);
+    
             // Opérations scientifiques
             case "^": return engine.pow(a, b);
             case "sin": return engine.sin(a);
@@ -160,19 +192,33 @@ public class Calculator {
      */
     public CalculationResult evaluateExpression(String expression) throws CalculatorException {
         List<String> tokens = tokenize(expression);
+        System.out.println("Tokens: " + tokens);
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
-
+    
         // Remplacer π par sa valeur
         for (int i = 0; i < tokens.size(); i++) {
             if (tokens.get(i).equals("π")) {
                 tokens.set(i, String.valueOf(Math.PI));
             }
         }
-
-        for (String token : tokens) {
+    
+        for (int i = 0; i < tokens.size(); i++) {
+            String token = tokens.get(i);
+    
             if (isNumeric(token)) {
-                values.push(Double.parseDouble(token));
+                double value = parseNumber(token);
+                values.push(value);
+            } else if (token.equals("%")) {
+                if (values.isEmpty()) {
+                    throw new CalculatorException("Pas de valeur pour le pourcentage ou le modulo");
+                }
+                // Traiter comme pourcentage unaire
+                double value = values.pop();
+                value = engine.percent(value);
+                values.push(value);
+            } else if (token.equals("mod")) {
+                evaluateOperators("mod", values, operators);
             } else if (isUnaryFunction(token) || token.equals("(")) {
                 operators.push(token);
             } else if (token.equals(")")) {
@@ -181,16 +227,35 @@ public class Calculator {
                 evaluateOperators(token, values, operators);
             }
         }
-
+        System.out.println("Valeurs finales: " + values);
+    
         // Évaluer les opérations restantes
         while (!operators.isEmpty()) {
             evaluateTopOperator(values, operators);
         }
-
+    
         if (values.isEmpty()) throw new CalculatorException("Expression vide");
         if (values.size() > 1) throw new CalculatorException("Expression invalide");
-
+    
         return new CalculationResult(values.pop(), expression);
+    }
+
+    private double parseNumber(String token) throws CalculatorException {
+        boolean isPercentage = false;
+        if (token.endsWith("%")) {
+            isPercentage = true;
+            token = token.substring(0, token.length() - 1);
+        }
+        double value;
+        try {
+            value = Double.parseDouble(token);
+        } catch (NumberFormatException e) {
+            throw new CalculatorException("Nombre invalide : " + token);
+        }
+        if (isPercentage) {
+            value = engine.percent(value);
+        }
+        return value;
     }
 
     private void evaluateParentheses(Stack<Double> values, Stack<String> operators) 
@@ -211,33 +276,39 @@ public class Calculator {
         }
     }
 
-    private void evaluateOperators(String currentOp, Stack<Double> values, 
-            Stack<String> operators) throws CalculatorException {
-        while (!operators.isEmpty() && !operators.peek().equals("(") && 
+    private void evaluateOperators(String currentOp, Stack<Double> values, Stack<String> operators) throws CalculatorException {
+        while (!operators.isEmpty() && !operators.peek().equals("(") &&
                precedence(operators.peek()) >= precedence(currentOp)) {
             evaluateTopOperator(values, operators);
         }
         operators.push(currentOp);
     }
 
-    private void evaluateTopOperator(Stack<Double> values, Stack<String> operators) 
-            throws CalculatorException {
-        if (operators.isEmpty()) return;
-        
+    private void evaluateTopOperator(Stack<Double> values, Stack<String> operators) throws CalculatorException {
+        if (operators.isEmpty())
+            throw new CalculatorException("Expression invalide");
+    
         String op = operators.pop();
+    
         if (isUnaryFunction(op)) {
-            if (values.isEmpty()) throw new CalculatorException("Expression invalide");
-            double a = values.pop();
-            values.push(performOperation(a, 0, op));
+            if (values.isEmpty())
+                throw new CalculatorException("Pas assez d'opérandes pour l'opérateur unaire " + op);
+            double value = values.pop();
+            double result = performOperation(value, 0, op);
+            values.push(result);
         } else if (op.equals("!")) {
-            if (values.isEmpty()) throw new CalculatorException("Expression invalide");
-            double a = values.pop();
-            values.push(engine.factorial(a));
-        } else {
-            if (values.size() < 2) throw new CalculatorException("Expression invalide");
+            if (values.isEmpty())
+                throw new CalculatorException("Pas assez d'opérandes pour l'opérateur " + op);
+            double value = values.pop();
+            double result = performOperation(value, 0, op);
+            values.push(result);
+        } else { // op est un opérateur binaire (+, -, x, ÷, mod, etc.)
+            if (values.size() < 2)
+                throw new CalculatorException("Pas assez d'opérandes pour l'opérateur " + op);
             double b = values.pop();
             double a = values.pop();
-            values.push(performOperation(a, b, op));
+            double result = performOperation(a, b, op);
+            values.push(result);
         }
     }
 }

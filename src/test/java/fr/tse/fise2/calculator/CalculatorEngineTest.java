@@ -40,10 +40,9 @@ public class CalculatorEngineTest {
     }
 
     @Test
-    void testPercentOrModulo() throws CalculatorException {
-        assertEquals(0.02, engine.percentOrModulo(2));
-        assertEquals(1, engine.percentOrModulo(5, 2));
-        assertThrows(CalculatorException.class, () -> engine.percentOrModulo(5, 0));
+    void testModulo() throws CalculatorException {
+        assertEquals(1, engine.modulo(5, 2));
+        assertThrows(CalculatorException.class, () -> engine.modulo(5, 0));
     }
 
     @Test

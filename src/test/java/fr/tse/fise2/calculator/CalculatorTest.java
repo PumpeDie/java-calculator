@@ -41,7 +41,7 @@ public class CalculatorTest {
     @Test
     public void testModuloOperation() throws CalculatorException {
         // Test du modulo
-        CalculationResult result = calculator.evaluateExpression("8%3");
+        CalculationResult result = calculator.evaluateExpression("8mod3");
         assertEquals(2, result.getResult());
     }
 

@@ -62,24 +62,26 @@ public class CalculatorEngine {
     }
 
     /**
-     * Applique l'opération modulo entre deux nombres, ou retourne le pourcentage d'un seul nombre.
+     * Applique l'opération modulo entre deux nombres.
      * @param a Le premier nombre.
      * @param b Le deuxième nombre (facultatif pour le pourcentage).
-     * @return Le résultat du modulo si b est fourni, sinon le pourcentage de a.
+     * @return Le résultat du modulo si b est fourni.
      */
-    public double percentOrModulo(double a, double b) throws CalculatorException {
+    public double modulo(double a, double b) throws CalculatorException {
         if (b == 0) {
             throw new CalculatorException("Modulo par zéro non permis.");
         }
-        lastResult = a % b; // Modulo si deux opérandes sont fournis
+        lastResult = a % b; 
         return lastResult;
     }
-    
-    /** 
-     * Surcharge de la méthode percentOrModulo pour calculer le pourcentage d'un nombre.
+
+    /**
+     * Calcule le pourcentage d'un nombre.
+     * @param a Le nombre
+     * @return Le pourcentage du nombre
      */
-    public double percentOrModulo(double a) {
-        lastResult = a / 100; // Calcul du pourcentage si un seul opérande est fourni
+    public double percent(double a) {
+        lastResult = a / 100; // Pourcentage si un seul opérande est fourni
         return lastResult;
     }
 

@@ -1,5 +1,7 @@
 package fr.tse.fise2.ui;
 
+import fr.tse.fise2.controller.Controller;
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -56,30 +58,30 @@ public class ScientificCalculatorUI extends CalculatorUI {
     @Override
     public void createAndShowGUI() {
         super.createAndShowGUI();
-        
-        // Créer un conteneur pour organiser les panels
-        JPanel mainContainer = new JPanel();
-        mainContainer.setLayout(new BorderLayout(5, 5));
-        UIStyle.stylePanel(mainContainer, Color.BLACK);
-        
-        // Déplacer les composants existants
-        Container parent = getPanel().getParent();
-        parent.remove(getPanel());
-        
-        // Ajouter les panels au conteneur principal avec scientificPanel à GAUCHE
-        mainContainer.add(scientificPanel, BorderLayout.WEST);
-        mainContainer.add(getPanel(), BorderLayout.CENTER);
-        
-        // Ajouter le conteneur principal à la frame
-        parent.add(mainContainer);
-        
-        // Initialiser en mode non-scientifique
-        scientificPanel.setVisible(false);
-    }
 
-    @Override
-    protected void handleScientificMode() {
-        toggleScientificMode();
+        // Récupérer la frame
+        Window window = SwingUtilities.getWindowAncestor(getPanel());
+        if (window instanceof JFrame) {
+        
+            // Créer un conteneur pour organiser les panels
+            JPanel mainContainer = new JPanel();
+            mainContainer.setLayout(new BorderLayout(5, 5));
+            UIStyle.stylePanel(mainContainer, Color.BLACK);
+            
+            // Déplacer les composants existants
+            Container parent = getPanel().getParent();
+            parent.remove(getPanel());
+            
+            // Ajouter les panels au conteneur principal avec scientificPanel à GAUCHE
+            mainContainer.add(scientificPanel, BorderLayout.WEST);
+            mainContainer.add(getPanel(), BorderLayout.CENTER);
+            
+            // Ajouter le conteneur principal à la frame
+            parent.add(mainContainer);
+            
+            // Initialiser en mode non-scientifique
+            scientificPanel.setVisible(false);
+        }
     }
 
     protected String getCurrentDisplayText() {
@@ -91,7 +93,7 @@ public class ScientificCalculatorUI extends CalculatorUI {
         setCurrentInput(text);
     }
 
-    private void toggleScientificMode() {
+    public void toggleScientificMode() {
         isScientificMode = !isScientificMode;
         scientificPanel.setVisible(isScientificMode);
         
@@ -110,38 +112,7 @@ public class ScientificCalculatorUI extends CalculatorUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            String currentText = getCurrentDisplayText();
-            
-            // Reset si affichage est "0"
-            if (currentText.equals("0")) {
-                clearCurrentInput();
-            }
-            
-            switch (command) {
-                case "sin": case "cos": case "tan": 
-                case "asin": case "acos": case "atan":
-                case "ln": case "exp":
-                    appendToCurrentInput(command + "(");
-                    break;
-                case "√":
-                    appendToCurrentInput("sqrt(");
-                    break;
-                case "x²":
-                    appendToCurrentInput("^2");
-                    break;
-                case "xʸ":
-                    appendToCurrentInput("^");
-                    break;
-                case "n!":
-                    appendToCurrentInput("!");
-                    break;
-                case "(": case ")": case "π":
-                    appendToCurrentInput(command);
-                    break;
-            }
-            
-            updateDisplay(getCurrentInput().toString());
-            getAcButton().setText("←");
+            getController().handleScientificInput(command);
         }
     }
 }

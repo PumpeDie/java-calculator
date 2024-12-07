@@ -1,8 +1,11 @@
-package fr.tse.fise2.calculator;
+package fr.tse.fise2.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import fr.tse.fise2.model.CalculatorEngine;
+import fr.tse.fise2.model.CalculatorException;
 
 public class CalculatorEngineTest {
 

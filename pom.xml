@@ -102,7 +102,7 @@
           <configuration>
               <archive>
                   <manifest>
-                      <mainClass>fr.tse.fise2.ui.ApplicationRun</mainClass>
+                      <mainClass>fr.tse.fise2.ApplicationRun</mainClass>
                       <addClasspath>true</addClasspath>
                   </manifest>
               </archive>

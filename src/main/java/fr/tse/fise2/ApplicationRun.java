@@ -1,4 +1,6 @@
-package fr.tse.fise2.ui;
+package fr.tse.fise2;
+
+import fr.tse.fise2.ui.ScientificCalculatorUI;
 
 /**
  * Classe ApplicationRun qui sert de point d'entrée pour l'application de calculatrice.

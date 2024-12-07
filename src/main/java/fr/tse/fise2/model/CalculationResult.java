@@ -1,4 +1,4 @@
-package fr.tse.fise2.calculator;
+package fr.tse.fise2.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +30,11 @@ public class CalculationResult {
     public String getFormattedResult() {
         if (result == (long) result) {
             return String.valueOf((long) result);
+        }
+        
+        // Si le résultat est proche d'un entier (différence < 1e-10)
+        if (Math.abs(result - Math.round(result)) < 1e-9) {
+            return String.valueOf(Math.round(result));
         }
 
         // Pour éviter les problèmes de précision des doubles

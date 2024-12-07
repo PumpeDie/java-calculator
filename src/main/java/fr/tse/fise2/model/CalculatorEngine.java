@@ -1,4 +1,4 @@
-package fr.tse.fise2.calculator;
+package fr.tse.fise2.model;
 
 import java.math.BigInteger;
 

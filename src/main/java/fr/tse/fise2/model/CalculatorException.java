@@ -1,4 +1,4 @@
-package fr.tse.fise2.calculator;
+package fr.tse.fise2.model;
 
 /**
  * Classe CalculatorException qui gère les exceptions spécifiques de la calculatrice.

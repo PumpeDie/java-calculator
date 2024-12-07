@@ -7,8 +7,8 @@ import java.math.RoundingMode;
  * Classe CalculationResult qui représente le résultat d'une opération de calcul.
  */
 public class CalculationResult {
-    private double result;
-    private String expression; // L'expression originale
+    private final double result;
+    private final String expression; // L'expression originale
 
     public CalculationResult(double result, String expression) {
         this.result = result;

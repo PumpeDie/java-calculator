@@ -37,12 +37,12 @@ public class Calculator {
         List<String> tokens = new ArrayList<>();
         Matcher matcher = TOKEN_PATTERN.matcher(expression);
     
-        // Étape 1 : Tokenisation initiale
+        // Tokenisation initiale
         while (matcher.find()) {
             tokens.add(matcher.group());
         }
     
-        // Étape 2 : Remplacement conditionnel de '%' par 'mod'
+        // Remplacement conditionnel de '%' par 'mod'
         List<String> processedTokens = new ArrayList<>();
         for (int i = 0; i < tokens.size(); i++) {
             String token = tokens.get(i);
@@ -67,7 +67,7 @@ public class Calculator {
             }
         }
     
-        // Étape 3 : Gestion de la multiplication implicite et des parenthèses
+        // Gestion de la multiplication implicite et des parenthèses
         List<String> finalTokens = new ArrayList<>();
         String previousToken = null;
         for (String token : processedTokens) {
@@ -192,7 +192,6 @@ public class Calculator {
      */
     public CalculationResult evaluateExpression(String expression) throws CalculatorException {
         List<String> tokens = tokenize(expression);
-        System.out.println("Tokens: " + tokens);
         Stack<Double> values = new Stack<>();
         Stack<String> operators = new Stack<>();
     
@@ -226,8 +225,7 @@ public class Calculator {
             } else {
                 evaluateOperators(token, values, operators);
             }
-        }
-        System.out.println("Valeurs finales: " + values);
+        };
     
         // Évaluer les opérations restantes
         while (!operators.isEmpty()) {

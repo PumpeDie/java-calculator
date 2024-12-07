@@ -1,5 +1,7 @@
 package fr.tse.fise2.calculator;
 
+import java.math.BigInteger;
+
 /**
  * Classe CalculatorEngine qui gère les logiques de base de la calculatrice.
  */
@@ -178,7 +180,14 @@ public class CalculatorEngine {
      * @throws CalculatorException Si une erreur se produit lors du calcul
      */
     public double exp(double a) throws CalculatorException {
-        lastResult = Math.exp(a);
+        double result = Math.exp(a);
+        if (Double.isInfinite(result)) {
+            throw new CalculatorException("Le résultat est trop grand pour être représenté.");
+        }
+        if (Double.isNaN(result)) {
+            throw new CalculatorException("Le calcul a produit un résultat invalide.");
+        }
+        lastResult = result;
         return lastResult;
     }
 
@@ -192,7 +201,11 @@ public class CalculatorEngine {
         if (a < 0) {
             throw new CalculatorException("La racine carrée n'est définie que pour les nombres positifs.");
         }
-        lastResult = Math.sqrt(a);
+        double result = Math.sqrt(a);
+        if (Double.isNaN(result)) {
+            throw new CalculatorException("Le calcul a produit un résultat invalide.");
+        }
+        lastResult = result;
         return lastResult;
     }
 
@@ -201,9 +214,17 @@ public class CalculatorEngine {
      * @param a La base
      * @param b L'exposant
      * @return La puissance de la base à l'exposant
+     * @throws CalculatorException Si le résultat dépasse les limites ou est invalide
      */
-    public double pow(double a, double b) {
-        lastResult = Math.pow(a, b);
+    public double pow(double a, double b) throws CalculatorException {
+        double result = Math.pow(a, b);
+        if (Double.isInfinite(result)) {
+            throw new CalculatorException("Le résultat est trop grand pour être représenté.");
+        }
+        if (Double.isNaN(result)) {
+            throw new CalculatorException("Le calcul a produit un résultat invalide.");
+        }
+        lastResult = result;
         return lastResult;
     }
 
@@ -217,10 +238,14 @@ public class CalculatorEngine {
         if (a < 0) {
             throw new CalculatorException("Le factoriel n'est défini que pour les nombres positifs.");
         }
-        lastResult = 1;
-        for (int i = 1; i <= a; i++) {
-            lastResult *= i;
+        if (a > 110) {
+            throw new CalculatorException("Le nombre est trop grand pour être calculé.");
         }
+        BigInteger result = BigInteger.ONE;
+        for (int i = 1; i <= a; i++) {
+            result = result.multiply(BigInteger.valueOf(i));
+        }
+        lastResult = result.doubleValue();
         return lastResult;
     }
 

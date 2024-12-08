@@ -11,14 +11,14 @@ La classe `Controller` joue un rôle central dans l'architecture MVC (Modèle-Vu
 
 - **Gestion du mode scientifique** : Elle permet de basculer entre le mode standard et le mode scientifique de la calculatrice, en ajustant l'interface utilisateur en conséquence.
 
-- **Validation et gestion des erreurs** : Le contrôleur valide les entrées utilisateur, gère les erreurs potentielles (comme la division par zéro) et affiche des messages d'erreur appropriés via [CalculatorException](calculatorException.md).
+- **Validation et gestion des erreurs** : Le contrôleur valide les entrées utilisateur, gère les erreurs potentielles (comme la division par zéro) et affiche des messages d'erreur appropriés via [`CalculatorException`](calculatorException.md).
 
 ## Design et Architecture
 
 ### Interaction avec la Vue et le Modèle
-- **Vue (View)** : Le contrôleur détient une référence à l'instance de `CalculatorUI` (ou `ScientificCalculatorUI`) et utilise cette référence pour recevoir les entrées utilisateur et mettre à jour l'affichage.
+- **Vue (View)** : Le contrôleur détient une référence à l'instance de [`CalculatorUI`](calculatorUI.md) (ou [`ScientificCalculatorUI`](scientificCalculatorUI.md)) et utilise cette référence pour recevoir les entrées utilisateur et mettre à jour l'affichage.
   
-- **Modèle (Model)** : Il interagit avec la classe `Calculator` pour évaluer les expressions mathématiques. Après l'évaluation, il récupère le résultat encapsulé dans une instance de `CalculationResult` et le transmet à la vue.
+- **Modèle (Model)** : Il interagit avec la classe [`Calculator`](calculator.md) pour évaluer les expressions mathématiques. Après l'évaluation, il récupère le résultat encapsulé dans une instance de [`CalculationResult`](calculationResult.md) et le transmet à la vue.
 
 ### Responsabilités
 - **Séparation des préoccupations** : En suivant le pattern MVC, le contrôleur évite d'intégrer la logique métier ou la gestion de l'interface utilisateur directement, assurant ainsi une meilleure maintenabilité et évolutivité de l'application.
@@ -58,7 +58,7 @@ Une classe interne qui étend `KeyAdapter` pour gérer les événements clavier.
 ## Méthodes utilitaires
 
 - **`evaluateExpression(String expression)`**
-  Interagit avec la classe `Calculator` pour évaluer l'expression mathématique saisie par l'utilisateur et renvoie le résultat formaté.
+  Interagit avec la classe [`Calculator`](calculator.md) pour évaluer l'expression mathématique saisie par l'utilisateur et renvoie le résultat formaté.
 
 - **`addMissingParentheses(String expression)`**
   Vérifie et ajoute les parenthèses manquantes dans l'expression pour assurer une évaluation correcte.

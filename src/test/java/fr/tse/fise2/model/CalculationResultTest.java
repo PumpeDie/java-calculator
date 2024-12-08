@@ -3,8 +3,6 @@ package fr.tse.fise2.model;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import fr.tse.fise2.model.CalculationResult;
-
 public class CalculationResultTest {
 
     @Test

@@ -1,7 +1,5 @@
 package fr.tse.fise2.ui;
 
-import fr.tse.fise2.controller.Controller;
-
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;

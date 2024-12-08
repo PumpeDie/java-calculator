@@ -2,10 +2,6 @@ package fr.tse.fise2.model;
 
 import org.junit.jupiter.api.Test;
 
-import fr.tse.fise2.model.CalculationResult;
-import fr.tse.fise2.model.Calculator;
-import fr.tse.fise2.model.CalculatorException;
-
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
